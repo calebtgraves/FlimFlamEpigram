@@ -9,7 +9,7 @@ class QuiplashGame:
         self.safety_epigrams = [ # List of safety epigrams (like safety quips)
             'A beetle with an attitude', 
             'Your mom', 
-            'Loaded banana',
+            'Loaded Banana',
             'Your friend Kevin',
             'Flim-Flam Epigram']
         self.special_activities = ["Activity 1", "Activity 2", "..."]  # Special activities
@@ -35,15 +35,18 @@ class QuiplashGame:
             if new_player:
                 self.players.append(new_player)
                 print(f"{new_player} has joined the game.")
+            time.sleep(1) # Short rest before checking again
 
         print("All players are in. Starting the game...")
 
     def check_for_new_player(self):
+        # TODO: Get Caleb's help for Javascript frontend
         # Needs to return None if there is no new player or the player
         # name if one joins.
         pass
 
     def check_all_in_pressed(self):
+        # TODO: Get Caleb's help for Javascript frontend
         # In need of a frontend solution here that can tell when 'All In'
         # gets pressed.
         pass
