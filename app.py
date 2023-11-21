@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+app.secret_key = 'some_secret'
+
+rooms = {}
 
 player_answers = {}
 questions = ["The worst pizza topping ever invented", "A rejected Olympic sport; Synchronized _____."]
@@ -19,8 +22,12 @@ def host():
 def player():
     return render_template('player.html')
 
-if __name__ == "__main__":
-    socketio.run(app, debug=True)
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    rooms[room] = rooms.get(room, [])
+    rooms[room].append(data['name'])
 
 @socketio.on('submit_answer')
 def handle_submit_answer(data):
@@ -32,15 +39,19 @@ def handle_next_question():
         question = questions.pop(0)
         socketio.emit('show_question', {'question': question})
 
-@socketio.on('new_question')
-def handle_new_question(data):
-    socketio.emit('show_question', data)
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
 
 # # FOR USE IN JAVASCRIPT
-# // Emit new question
-# socket.emit('new_question', { question: 'The worst pizza topping ever invented' });
+## HOST.js
+# var socket = io.connect('http://' + document.domain + ':' + location.port);
+# var room = "your_generated_room_id"; // Should come from your Flask backend
+# socket.emit('join', {room: room, name: 'host'});
 
-# // Listen for new question
-# socket.on('show_question', function(data) {
-#   document.getElementById('question').innerHTML = data.question;
-# });
+# PLAYER.js
+# var socket = io.connect('http://' + document.domain + ':' + location.port);
+# var room = "your_generated_room_id"; // Should come from user input
+# function joinGame() {
+#     var name = document.getElementById("playerName").value;
+#     socket.emit('join', {room: room, name: name});
+# }
