@@ -1,0 +1,21 @@
+<!-- host.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Host</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io();
+
+        function startGame() {
+            socket.emit('start_game');
+        }
+
+        // Additional JavaScript for managing game state...
+    </script>
+</head>
+<body>
+    <button onclick="startGame()">Start Game</button>
+    <!-- Additional elements for hosting the game -->
+</body>
+</html>

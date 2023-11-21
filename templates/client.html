@@ -1,0 +1,23 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Player</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io();
+
+        function sendName() {
+            var playerName = document.getElementById('playerName').value;
+            socket.emit('register_player', { name: playerName });
+        }
+
+        // Additional JavaScript for player interactions...
+    </script>
+</head>
+<body>
+    <input type="text" id="playerName" placeholder="Enter your name">
+    <button onclick="sendName()">Join Game</button>
+    <!-- Additional elements for player interactions -->
+</body>
+</html>

@@ -1,46 +1,45 @@
-from flask import Flask, render_template, request, redirect, url_for
-from flask_socketio import SocketIO
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit
+from logic import QuiplashGame
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
-
-player_answers = {}
-questions = ["The worst pizza topping ever invented", "A rejected Olympic sport; Synchronized _____."]
-
-@app.route('/')
-def home():
-    return render_template('login.html')
 
 @app.route('/host')
 def host():
-    return render_template('host.html')
+    return render_template('host.html')  # Host page
 
-@app.route('/player')
-def player():
-    return render_template('player.html')
+@app.route('/client')
+def client():
+    return render_template('client.html')  # Client/player page
 
-if __name__ == "__main__":
-    socketio.run(app, debug=True)
+@socketio.on('connect')
+def handle_connect():
+    print("A new player has connected.")
+    # Here you can perform actions needed when a new player connects
+    # For example, sending a welcome message
+    emit('welcome_message', {'message': 'Welcome to the game!'})
 
-@socketio.on('submit_answer')
-def handle_submit_answer(data):
-    player_answers[data['username']] = data['answer']
+connected_players = {}
 
-@socketio.on('request_next_question')
-def handle_next_question():
-    if questions:
-        question = questions.pop(0)
-        socketio.emit('show_question', {'question': question})
+@socketio.on('register_player')
+def handle_player_registration(data):
+    player_name = data['name']
+    session_id = request.sid
+    print(f"Player {player_name} has joined the game with session ID {session_id}.")
+    connected_players[player_name] = session_id
 
-@socketio.on('new_question')
-def handle_new_question(data):
-    socketio.emit('show_question', data)
+@socketio.on('disconnect')
+def handle_disconnect():
+    session_id = request.sid
+    if session_id in connected_players:
+        player_name = connected_players[session_id]
+        print(f"Player {player_name} has disconnected.")
+        # Remove player from the list
+        del connected_players[session_id]
 
-# # FOR USE IN JAVASCRIPT
-# // Emit new question
-# socket.emit('new_question', { question: 'The worst pizza topping ever invented' });
+# Additional SocketIO events for game logic here...
 
-# // Listen for new question
-# socket.on('show_question', function(data) {
-#   document.getElementById('question').innerHTML = data.question;
-# });
+if __name__ == '__main__':
+    socketio.run(app)
