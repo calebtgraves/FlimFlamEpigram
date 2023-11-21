@@ -7,16 +7,17 @@
     <script type="text/javascript">
         var socket = io();
 
-        function joinGame() {
-            var playerName = /* Get player's name logic */;
-            socket.emit('join_game', { name: playerName });
+        function sendName() {
+            var playerName = document.getElementById('playerName').value;
+            socket.emit('register_player', { name: playerName });
         }
 
         // Additional JavaScript for player interactions...
     </script>
 </head>
 <body>
-    <button onclick="joinGame()">Join Game</button>
+    <input type="text" id="playerName" placeholder="Enter your name">
+    <button onclick="sendName()">Join Game</button>
     <!-- Additional elements for player interactions -->
 </body>
 </html>
