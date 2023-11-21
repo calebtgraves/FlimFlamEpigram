@@ -28,7 +28,7 @@ def handle_player_registration(data):
     player_name = data['name']
     session_id = request.sid
     print(f"Player {player_name} has joined the game with session ID {session_id}.")
-    connected_players[player_name] = session_id
+    connected_players[session_id] = []
 
 @socketio.on('disconnect')
 def handle_disconnect():
