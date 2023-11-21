@@ -12,7 +12,7 @@ class QuiplashGame:
             'Loaded Banana',
             'Your friend Kevin',
             'Flim-Flam Epigram']
-        self.special_activities = ["Activity 1", "Activity 2", "..."]  # Special activities
+        self.special_activities = []  # Special activities
 
     def run_game(self):
         self.setup_lobby()
