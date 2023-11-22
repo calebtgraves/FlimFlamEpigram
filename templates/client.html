@@ -9,14 +9,21 @@
 
         function sendName() {
             var playerName = document.getElementById('playerName').value;
-            socket.emit('register_player', { name: playerName });
+            var gameID = document.getElementById('gameID').value;
+            socket.emit('register_player', { name: playerName, id: gameID });
         }
+
+        socket.on('welcome_message', function(data) {
+            alert(data.message);  // For example, alerting the received message
+            // You can also update the DOM based on the received data
+        });
 
         // Additional JavaScript for player interactions...
     </script>
 </head>
 <body>
     <input type="text" id="playerName" placeholder="Enter your name">
+    <input type="text" id="gameID" placeholder="Game ID">
     <button onclick="sendName()">Join Game</button>
     <!-- Additional elements for player interactions -->
 </body>

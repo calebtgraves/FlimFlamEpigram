@@ -1,18 +1,20 @@
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit
 import random
 import time
 
 class QuiplashGame:
-    def __init__(self):
-        self.players = []  # List of player names
+    def __init__(self, players: list):
+        self.players = players  # List of player names
         self.scores = {}   # Dictionary to keep track of scores
         self.prompts = []  # List of prompts
+        self.special_activities = ['acro_lash', 'comic_lash', 'word_lash']  # Special activities
         self.safety_epigrams = [ # List of safety epigrams (like safety quips)
             'A beetle with an attitude', 
             'Your mom', 
             'Loaded Banana',
             'Your friend Kevin',
             'Flim-Flam Epigram']
-        self.special_activities = []  # Special activities
 
     def run_game(self):
         self.setup_lobby()
@@ -22,49 +24,95 @@ class QuiplashGame:
         self.play_special_round()
         self.show_winner()
 
-    def load_prompts(self):
+    def load_prompts(self, shuffle=True):
         with open('prompts/prompts.txt', 'r') as prompts:
             for prompt in prompts:
                 self.prompts.append(prompt)
+        if shuffle:
+            random.shuffle(self.prompts)
 
     def setup_lobby(self):
         print("Waiting for players to join...")
 
-        while len(self.players) < 3 or not self.check_all_in_pressed():
+        while len(self.players) < 3:
             new_player = self.check_for_new_player()
             if new_player:
                 self.players.append(new_player)
                 print(f"{new_player} has joined the game.")
             time.sleep(1) # Short rest before checking again
 
+        while not self.all_in:
+            self.check_all_in_pressed()
+            time.sleep(1)
+
         print("All players are in. Starting the game...")
 
     def check_for_new_player(self):
-        # TODO: Get Caleb's help for Javascript frontend
         # Needs to return None if there is no new player or the player
         # name if one joins.
-        pass
+        # Will likely be an issue of Flask implementation
+        test = True
+        if test:
+            return 'Player Name'
+        else:
+            return None
 
     def check_all_in_pressed(self):
         # TODO: Get Caleb's help for Javascript frontend
-        # In need of a frontend solution here that can tell when 'All In'
-        # gets pressed.
-        pass
+            # In need of a frontend solution here that can tell when 'All In'
+            # gets pressed. When it gets pressed, I'd like to change self.all_in
+            # to be True using logic like that below.
+        javascript_button_pressed = True
+        if javascript_button_pressed:
+            self.all_in = True
+        else:
+            pass
 
     def show_instructions(self):
         # Display game instructions
         print("Welcome to the game! Here are the instructions...")
+        # TODO: This could be a good place for Yodahe to adapt player
+        # instructions using the documentation. This is a near-the-end step.
 
     def play_round(self, round_num):
         # Logic for each round
         print(f"Round {round_num}")
+        prompts = self.make_prompt_pairs()
+        self.deliver_prompts(prompts)
         self.collect_answers()
         self.voting_phase()
         self.show_results()
         self.update_leaderboard()
 
+    def make_prompt_pairs(self, shuffle=True):
+        prompts = [] # Local prompt list
+        players = len(self.players)
+        # Get unique prompts (1 per player) and add to local list
+        for i in range(players):
+            unique_prompt = self.prompts.pop(i) # Get and then remove prompt from list of prompts
+            prompts.append(unique_prompt)
+
+        prompt_pairs = [] # List of tuple prompt pairs
+        index = -1 # Start index at -1 to access end of list and go forward
+        for _ in range(players):
+            prompt_pair = (prompts[index], prompts[(index+1)])
+            prompt_pairs.append(prompt_pair)
+            index += 1 # Increment index at end
+
+        if shuffle:
+            random.shuffle(prompt_pairs)
+
+        return prompt_pairs
+            
+
+    def deliver_prompts(self, prompt_pairs: tuple):
+        players = {}
+        for player_dict in # TODO: Finish this part and receiving part in javascript
+        if player:
+            emit('personal_message', {'message': message}, room=player['sid'])
+
     def collect_answers(self):
-        # Collect answers from players for prompts
+        # TODO: Need frontend solution to collect answers from players for prompts
         pass
 
     def voting_phase(self):

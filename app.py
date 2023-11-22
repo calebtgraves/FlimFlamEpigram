@@ -1,10 +1,23 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 from logic import QuiplashGame
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+
+MAX_PLAYERS = 8
+MIN_PLAYERS = 3
+
+def get_letters(letter_count: int): # Placeholder: replace with Yodahe's function
+    letters = ''
+    for _ in range(letter_count):
+        letters += chr(random.randint(ord('A'), ord('Z')))
+    return letters
+
+GAME_ID = get_letters(4)
+print(f'Game ID: {GAME_ID}')
 
 @app.route('/host')
 def host():
@@ -26,9 +39,16 @@ connected_players = {}
 @socketio.on('register_player')
 def handle_player_registration(data):
     player_name = data['name']
+    game_id = data['id']
     session_id = request.sid
-    print(f"Player {player_name} has joined the game with session ID {session_id}.")
-    connected_players[session_id] = []
+    if game_id in connected_players:
+        if len(connected_players[game_id]) < MAX_PLAYERS:
+            connected_players[game_id].append({'name': player_name, 'sid': session_id})
+            print(f"Player {player_name} has joined the game with ID {game_id}.")
+        else:
+            print(f"Player {player_name} could not join: {MAX_PLAYERS} players are already connected.")
+    else:
+        connected_players[game_id] = []
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -38,6 +58,11 @@ def handle_disconnect():
         print(f"Player {player_name} has disconnected.")
         # Remove player from the list
         del connected_players[session_id]
+
+@socketio.on('start_game')
+def start_game():
+    if len(connected_players[GAME_ID]) >= MIN_PLAYERS:
+        game = QuiplashGame(connected_players[GAME_ID])
 
 # Additional SocketIO events for game logic here...
 
