@@ -15,7 +15,7 @@ main{
     animation: changeColor 100s linear infinite;
 }
 #main-logo{
-    background-image:url('../images/FlimFlamEpigram.svg');
+    background-image:url('images/FlimFlamEpigram.svg');
     height:25%;
     width:50%;
     background-repeat:no-repeat;
