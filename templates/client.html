@@ -13,10 +13,17 @@
             socket.emit('register_player', { name: playerName, id: gameID });
         }
 
-        socket.on('welcome_message', function(data) {
-            alert(data.message);  // For example, alerting the received message
-            // You can also update the DOM based on the received data
+        function startGame(){
+            socket.emit('start_game');
+        }
+
+        socket.on('vip', function(data) {
+            var all_in = data.all_in
         });
+
+        socket.on('min_reached',function(data) {
+            document.getElementById('start-button').style.display='inline-block';
+        })
 
         // Additional JavaScript for player interactions...
     </script>
@@ -25,6 +32,7 @@
     <input type="text" id="playerName" placeholder="Enter your name">
     <input type="text" id="gameID" placeholder="Game ID">
     <button onclick="sendName()">Join Game</button>
+    <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
     <!-- Additional elements for player interactions -->
 </body>
 </html>

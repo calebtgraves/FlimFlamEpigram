@@ -4,8 +4,9 @@ import random
 import time
 
 class QuiplashGame:
-    def __init__(self, players: list):
+    def __init__(self, players: list, host_sid):
         self.players = players  # List of player names
+        self.host_sid = host_sid # Host sid (for emit(room=host_sid)
         self.scores = {}   # Dictionary to keep track of scores
         self.prompts = []  # List of prompts
         self.special_activities = ['acro_lash', 'comic_lash', 'word_lash']  # Special activities
@@ -17,7 +18,6 @@ class QuiplashGame:
             'Flim-Flam Epigram']
 
     def run_game(self):
-        self.setup_lobby()
         self.show_instructions()
         for round_num in range(1, 3):
             self.play_round(round_num)
@@ -30,9 +30,6 @@ class QuiplashGame:
                 self.prompts.append(prompt)
         if shuffle:
             random.shuffle(self.prompts)
-
-    def setup_lobby(self):
-        print("Waiting for players to join...")
 
         while len(self.players) < 3:
             new_player = self.check_for_new_player()
@@ -70,7 +67,7 @@ class QuiplashGame:
 
     def show_instructions(self):
         # Display game instructions
-        print("Welcome to the game! Here are the instructions...")
+        emit("instructions", room=self.host_sid)
         # TODO: This could be a good place for Yodahe to adapt player
         # instructions using the documentation. This is a near-the-end step.
 
@@ -106,10 +103,10 @@ class QuiplashGame:
             
 
     def deliver_prompts(self, prompt_pairs: tuple):
-        players = {}
-        for player_dict in # TODO: Finish this part and receiving part in javascript
-        if player:
-            emit('personal_message', {'message': message}, room=player['sid'])
+        prompt_pairs = prompt_pairs # Deliver 2 prompts per player
+        for i in range(len(self.players)): # TODO: Finish this part and receiving part in javascript
+            emit('new_prompt', {'prompt': self.player_dict[i]['name']}, room=self.player_dict[i]['sid'])
+            emit('new_prompt', {'prompt': self.player_dict[i]['name']}, room=self.player_dict[i]['sid'])
 
     def collect_answers(self):
         # TODO: Need frontend solution to collect answers from players for prompts

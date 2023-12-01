@@ -4,18 +4,50 @@
 <head>
     <title>Game Host</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript">
         var socket = io();
-
-        function startGame() {
-            socket.emit('start_game');
+        
+        function requestGameId(){
+            socket.emit('game_id_request')
         }
+
+        requestGameId()
+        socket.on('game_id', function(data) {
+            document.getElementById('game-id').innerText=data.id
+            // alert(data.id);  // For example, alerting the received message
+            // You can also update the DOM based on the received data
+        });
+
+        socket.on('instructions',function(data){
+            document.getElementById('instructions').style.display = 'block'
+        })
+
+        socket.on('new_player', function(data) {
+            const newPlayer = document.createElement('p')
+            newPlayer.innerText=data.name
+            if(data.vip){
+                newPlayer.id='vip-player';
+            }
+            document.getElementById('player_list').appendChild(newPlayer);
+            var vip = data.vip
+            // alert(data.id);  // For example, alerting the received message
+            // You can also update the DOM based on the received data
+        });
 
         // Additional JavaScript for managing game state...
     </script>
 </head>
 <body>
-    <button onclick="startGame()">Start Game</button>
+    <main>
+        <div id="main-logo"></div>
+        <div id="code-container">
+            <p>Game Code:</p>
+            <p id="game-id"></p>
+        </div>
+        <div id='player_list'></div>
+        <div id='instructions' style='display:none'>These are the instructions</div>
+    </main>
     <!-- Additional elements for hosting the game -->
 </body>
 </html>

@@ -10,14 +10,18 @@ socketio = SocketIO(app)
 MAX_PLAYERS = 8
 MIN_PLAYERS = 3
 
-def get_letters(letter_count: int): # Placeholder: replace with Yodahe's function
+game_id = None
+
+## Reference Dictionaries ##
+connected_players = {} # keys are game id, values are player info
+vips = {} # VIPs of each game id by session id (for emitting to VIPs)
+game_hosts = {} # Game id as key, host's session id as value
+
+def get_letters(letter_count = 4): # Placeholder: replace with Yodahe's function
     letters = ''
     for _ in range(letter_count):
         letters += chr(random.randint(ord('A'), ord('Z')))
     return letters
-
-GAME_ID = get_letters(4)
-print(f'Game ID: {GAME_ID}')
 
 @app.route('/host')
 def host():
@@ -27,14 +31,20 @@ def host():
 def client():
     return render_template('client.html')  # Client/player page
 
+@socketio.on('game_id_request')
+def serve_id():
+    global game_id
+    game_id = get_letters()
+    session_id = request.sid
+    game_hosts[game_id] = session_id
+    emit('game_id', {'id': game_id})
+
 @socketio.on('connect')
 def handle_connect():
     print("A new player has connected.")
     # Here you can perform actions needed when a new player connects
     # For example, sending a welcome message
     emit('welcome_message', {'message': 'Welcome to the game!'})
-
-connected_players = {}
 
 @socketio.on('register_player')
 def handle_player_registration(data):
@@ -43,16 +53,22 @@ def handle_player_registration(data):
     session_id = request.sid
     if game_id in connected_players:
         if len(connected_players[game_id]) < MAX_PLAYERS:
-            connected_players[game_id].append({'name': player_name, 'sid': session_id})
+            connected_players[game_id].append({'name': player_name, 'vip': False, 'sid': session_id})
+            if len(connected_players[game_id]) == MIN_PLAYERS:
+                emit('min_reached', room=vips[game_id])
             print(f"Player {player_name} has joined the game with ID {game_id}.")
         else:
             print(f"Player {player_name} could not join: {MAX_PLAYERS} players are already connected.")
+        emit('new_player', {'name': player_name, 'vip': False}, room=game_hosts[game_id]) # Send player name to host
     else:
-        connected_players[game_id] = []
+        connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id}]
+        vips[game_id] = session_id
+        emit('vip')
+        emit('new_player', {'name': player_name, 'vip': True}, room=game_hosts[game_id]) # Send VIP player name to host
 
 @socketio.on('disconnect')
-def handle_disconnect():
-    session_id = request.sid
+def handle_disconnect(data):
+    session_id = data.sid
     if session_id in connected_players:
         player_name = connected_players[session_id]
         print(f"Player {player_name} has disconnected.")
@@ -61,8 +77,8 @@ def handle_disconnect():
 
 @socketio.on('start_game')
 def start_game():
-    if len(connected_players[GAME_ID]) >= MIN_PLAYERS:
-        game = QuiplashGame(connected_players[GAME_ID])
+    game = QuiplashGame(connected_players[game_id], host_sid=game_hosts[game_id])
+    game.run_game()
 
 # Additional SocketIO events for game logic here...
 
