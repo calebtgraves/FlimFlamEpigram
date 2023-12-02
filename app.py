@@ -17,11 +17,13 @@ connected_players = {} # keys are game id, values are player info
 vips = {} # VIPs of each game id by session id (for emitting to VIPs)
 game_hosts = {} # Game id as key, host's session id as value
 
-def get_letters(letter_count = 4): # Placeholder: replace with Yodahe's function
-    letters = ''
-    for _ in range(letter_count):
-        letters += chr(random.randint(ord('A'), ord('Z')))
-    return letters
+def get_letters(num_letters): # Yodahe's random letter function
+
+    random_letters = [random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ') for letter in range(num_letters)]
+
+    random_string = ''.join(random_letters)
+
+    return random_string
 
 @app.route('/host')
 def host():
@@ -34,7 +36,7 @@ def client():
 @socketio.on('game_id_request')
 def serve_id():
     global game_id
-    game_id = get_letters()
+    game_id = get_letters(4)
     session_id = request.sid
     game_hosts[game_id] = session_id
     emit('game_id', {'id': game_id})
