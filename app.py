@@ -29,7 +29,7 @@ def get_letters(num_letters): # Yodahe's random letter function
 def host():
     return render_template('host.html')  # Host page
 
-@app.route('/client')
+@app.route('/')
 def client():
     return render_template('client.html')  # Client/player page
 
