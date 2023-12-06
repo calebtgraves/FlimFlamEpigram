@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Game Host</title>
+    <meta name="viewport" content="width=device-width">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" defer>
@@ -15,8 +16,6 @@
         requestGameId()
         socket.on('game_id', function(data) {
             document.getElementById('game-id').innerText=data.id
-            // alert(data.id);  // For example, alerting the received message
-            // You can also update the DOM based on the received data
         });
 
         socket.on('instructions',function(data){
@@ -24,12 +23,14 @@
         })
 
         socket.on('new_player', function(data) {
-            const newPlayer = document.createElement('p')
+            const newPlayer = document.createElement('div')
             newPlayer.innerText=data.name
+            newPlayer.classList.add('player-token')
             if(data.vip){
-                newPlayer.id='vip-player';
+                newPlayer.id = "vip-player"
             }
-            document.getElementById('player_list').appendChild(newPlayer);
+            newPlayer.style.backgroundColor=data.color
+            document.getElementById('player-list').appendChild(newPlayer);
             var vip = data.vip
             // alert(data.id);  // For example, alerting the received message
             // You can also update the DOM based on the received data
@@ -39,13 +40,13 @@
     </script>
 </head>
 <body>
-    <main>
-        <div id="main-logo"></div>
+    <main id="host-main">
+        <div id="host-main-logo"></div>
         <div id="code-container">
             <p>Game Code:</p>
             <p id="game-id"></p>
         </div>
-        <div id='player_list'></div>
+        <div id='player-list'></div>
         <div id='instructions' style='display:none'>These are the instructions</div>
     </main>
     <!-- Additional elements for hosting the game -->

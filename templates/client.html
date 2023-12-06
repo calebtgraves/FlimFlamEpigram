@@ -3,36 +3,46 @@
 <html>
 <head>
     <title>Game Player</title>
+    <meta name="viewport" content="width=device-width">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" defer>
         var socket = io();
+        var gameID
 
         function sendName() {
             var playerName = document.getElementById('playerName').value;
-            var gameID = document.getElementById('gameID').value;
+            gameID = document.getElementById('gameID').value;
             socket.emit('register_player', { name: playerName, id: gameID });
         }
 
         function startGame(){
-            socket.emit('start_game');
+            socket.emit('start_game', gameID);
         }
-
-        socket.on('vip', function(data) {
-            var all_in = data.all_in
-        });
 
         socket.on('min_reached',function(data) {
             document.getElementById('start-button').style.display='inline-block';
+        })
+
+        socket.on('color',function(data){
+            document.getElementById('client-main').style.backgroundColor = data;
+            document.getElementById('join-game-form').innerHTML = `<h1>Welcome, ${playerName.value}! Do you see your name on the screen?</h1>`
         })
 
         // Additional JavaScript for player interactions...
     </script>
 </head>
 <body>
-    <input type="text" id="playerName" placeholder="Enter your name">
-    <input type="text" id="gameID" placeholder="Game ID">
-    <button onclick="sendName()">Join Game</button>
-    <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
+    <main id="client-main">
+        <div id="join-game-form">
+            <label for="playerName">Enter your name:</label>
+            <input type="text" id="playerName">
+            <label for="playerName">Game Id:</label>
+            <input type="text" id="gameID">
+            <button onclick="sendName()">Join Game</button>
+        </div>
+        <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
+    </main>
     <!-- Additional elements for player interactions -->
 </body>
 </html>
