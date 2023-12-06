@@ -7,15 +7,16 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
+## Constants ##
 MAX_PLAYERS = 8
 MIN_PLAYERS = 3
-
-game_id = None
+COLORS = ["#c93838","#c99438","#c9b838","#68c938","#38c9c9","#3874c9","#9638c9","#c9389e"] #List of possible player colors as hex codes
 
 ## Reference Dictionaries ##
 connected_players = {} # keys are game id, values are player info
 vips = {} # VIPs of each game id by session id (for emitting to VIPs)
 game_hosts = {} # Game id as key, host's session id as value
+colors_available = {} #Stores per game what player colors have not been assigned; keys are game ids, values are lists of colors.
 
 def get_letters(num_letters): # Yodahe's random letter function
 
@@ -29,16 +30,17 @@ def get_letters(num_letters): # Yodahe's random letter function
 def host():
     return render_template('host.html')  # Host page
 
-@app.route('/client')
+@app.route('/')
 def client():
     return render_template('client.html')  # Client/player page
 
 @socketio.on('game_id_request')
 def serve_id():
-    global game_id
     game_id = get_letters(4)
     session_id = request.sid
     game_hosts[game_id] = session_id
+    colors_available[game_id] = COLORS[::]
+    random.shuffle(colors_available[game_id]) #Shuffle the colors list so that we can use .pop() to get a "random" color.
     emit('game_id', {'id': game_id})
 
 @socketio.on('connect')
@@ -51,8 +53,9 @@ def handle_connect():
 @socketio.on('register_player')
 def handle_player_registration(data):
     player_name = data['name']
-    game_id = data['id']
+    game_id = data['id'].upper()
     session_id = request.sid
+    player_color = colors_available[game_id].pop() #Assign a color to a player whilst removing it from the list so no other players can have it.
     if game_id in connected_players:
         if len(connected_players[game_id]) < MAX_PLAYERS:
             connected_players[game_id].append({'name': player_name, 'vip': False, 'sid': session_id})
@@ -61,12 +64,14 @@ def handle_player_registration(data):
             print(f"Player {player_name} has joined the game with ID {game_id}.")
         else:
             print(f"Player {player_name} could not join: {MAX_PLAYERS} players are already connected.")
-        emit('new_player', {'name': player_name, 'vip': False}, room=game_hosts[game_id]) # Send player name to host
+        emit('new_player', {'name': player_name, 'vip': False,'color':player_color}, room=game_hosts[game_id]) # Send player name to host
+        emit('color',player_color,room=session_id)
     else:
-        connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id}]
+        connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id, 'color':player_color}]
         vips[game_id] = session_id
         emit('vip')
-        emit('new_player', {'name': player_name, 'vip': True}, room=game_hosts[game_id]) # Send VIP player name to host
+        emit('new_player', {'name': player_name, 'vip': True, 'color':player_color}, room=game_hosts[game_id]) # Send VIP player name to host
+        emit('color',player_color,room=session_id)
 
 @socketio.on('disconnect')
 def handle_disconnect(data):
@@ -78,11 +83,12 @@ def handle_disconnect(data):
         del connected_players[session_id]
 
 @socketio.on('start_game')
-def start_game():
+def start_game(game_id):
+    game_id = game_id.upper()
     game = QuiplashGame(connected_players[game_id], host_sid=game_hosts[game_id])
     game.run_game()
 
 # Additional SocketIO events for game logic here...
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, host="0.0.0.0", port=5000)
