@@ -20,13 +20,38 @@
             socket.emit('start_game', gameID);
         }
 
-        socket.on('min_reached',function(data) {
+        socket.on('game_started',function(){
+            console.log('Game has been started');
+            document.getElementById('welcome').style.display = 'none';
+            document.getElementById('client-main').style.backgroundImage = 'none';
+        })
+
+        socket.on('min_reached',function() {
             document.getElementById('start-button').style.display='inline-block';
+        })
+
+        socket.on('vip',function(){
+            document.getElementById('welcome').classList.add('vip-background')
         })
 
         socket.on('color',function(data){
             document.getElementById('client-main').style.backgroundColor = data;
-            document.getElementById('join-game-form').innerHTML = `<h1>Welcome, ${playerName.value}! Do you see your name on the screen?</h1>`
+            document.getElementById('join-game-form').style.display = 'none';
+            document.getElementById('welcome').style.backgroundColor = data;
+            document.getElementById('welcome').style.display = 'flex';
+            document.getElementById('welcome-message').innerText = `Welcome, ${playerName.value}! Do you see your name on the screen?`;
+        })
+
+        socket.on('invalid_code',function(){
+            document.getElementById('invalid-code').innerText = 'Invalid Code'
+            document.getElementById('invalid-code').style.display = 'inline';
+            document.getElementById('gameID').style.border = '2px solid red'
+        })
+
+        socket.on('game_full',function(){
+            document.getElementById('invalid-code').innerText = 'Game Full'
+            document.getElementById('invalid-code').style.display = 'inline';
+            document.getElementById('gameID').style.border = '2px solid red'
         })
 
         // Additional JavaScript for player interactions...
@@ -36,12 +61,15 @@
     <main id="client-main">
         <div id="join-game-form">
             <label for="playerName">Enter your name:</label>
-            <input type="text" id="playerName">
-            <label for="playerName">Game Id:</label>
-            <input type="text" id="gameID">
+            <input type="text" id="playerName" autocomplete="off">
+            <label for="playerName">Game Id: <span id="invalid-code">Invalid Code</span></label>
+            <input type="text" id="gameID" autocomplete="off"/>
             <button onclick="sendName()">Join Game</button>
         </div>
-        <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
+        <div id="welcome">
+            <h1 id="welcome-message"></h1>
+            <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
+        </div>
     </main>
     <!-- Additional elements for player interactions -->
 </body>

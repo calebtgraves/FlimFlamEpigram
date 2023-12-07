@@ -22,9 +22,22 @@
             document.getElementById('instructions').style.display = 'block'
         })
 
+        socket.on('new_vip', function(){
+            document.getElementById('player-list').removeChild(document.getElementById('player-list').firstChild)
+            const newVip = Array.from(document.getElementsByClassName('player-token'))[0]
+            newVip.id = "vip-player"
+        })
+
+        socket.on('last_player_disconnected', function(){
+            document.getElementById('player-list').innerHTML = '';
+        })
+
         socket.on('new_player', function(data) {
-            const newPlayer = document.createElement('div')
-            newPlayer.innerText=data.name
+            const newPlayer = document.createElement('div');
+            const playerName = document.createElement('p')
+            playerName.innerText = data.name;
+            playerName.style.color=data.color;
+            newPlayer.appendChild(playerName)
             newPlayer.classList.add('player-token')
             if(data.vip){
                 newPlayer.id = "vip-player"

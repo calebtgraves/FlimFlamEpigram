@@ -15,10 +15,10 @@
         background-color:#c93838;
     }
     10%{
-        background-color:#c99438;
+        background-color:#e5a22e;
     }
     20%{
-        background-color:#c9b838;
+        background-color:#e3cb15;
     }
     30%{
         background-color:#68c938;
@@ -45,6 +45,16 @@
         background-color:#c9383a;
     }
 }
+@keyframes bobbing {
+    0%, 100% {
+      transform: translateY(0);
+      box-shadow: rgba(0,0,0,50%)0px 5px 10px;
+    }
+    50% {
+      transform: translateY(-10px);
+      box-shadow: rgba(0,0,0,30%)0px 15px 20px;
+    }
+  }
 *{
     margin:0;
     padding:0;
@@ -117,14 +127,22 @@ main{
     align-items: center;
     justify-content: center;
     margin:.7em;
-    color:white;
     font-size: 1.5em;
     font-family: "omnes-cyrillic-semicondensed", sans-serif;
     font-weight: 700;
     font-style: normal;
+    animation:bobbing 4s ease-in-out infinite;
+}
+.player-token p{
+    filter: brightness(50%);
+    width: 100%;
+    word-wrap: break-word;
+    text-align: center;
 }
 #vip-player{
     border-color:gold;
+    background-image:url('../images/VipStar.svg');
+    background-blend-mode:overlay;
 }
 #player-list{
     display:flex;
@@ -132,6 +150,12 @@ main{
     width:100%;
     justify-content: center;
     align-items: center;
+}
+button{
+    cursor:pointer;
+}
+button:active{
+    filter:brightness(50%);
 }
 #join-game-form{
     display:flex;
@@ -142,7 +166,7 @@ main{
     justify-content: center;
 }
 #client-main input, #client-main button{
-    font-size:1.5rem;
+    font-size:2rem;
     padding:.5rem;
     border:1px solid black;
     border-radius:.5rem;
@@ -150,7 +174,7 @@ main{
     max-width:400px;
     min-width:5%;
     font-family:'omnes-cyrillic-semicondensed';
-    font-weight: 700;
+    font-weight: 900;
     font-style: normal;
 }
 #client-main label{
@@ -163,7 +187,31 @@ main{
 #client-main label, #client-main button{
     margin-top:1rem;
 }
-#client-main h1{
-    padding:2em;
+#welcome-message{
+    padding:.5em;
+    max-width:700px;
     text-align:center;
+    text-wrap:balance;
+    word-wrap:break-word;
+}
+#welcome{
+    display:none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height:50vh;
+}
+.vip-background{
+    background-image: url('../images/VipStar.svg');
+    background-size: 50%;
+    background-blend-mode:overlay;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+#invalid-code{
+    display:none;
+    color:red;
+    text-align: center;
+    width:100%;
+    font-size:1.5rem;
 }
