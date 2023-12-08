@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
-from logic import QuiplashGame
+from logic import EpigramGame
 import random
 
 app = Flask(__name__)
@@ -115,7 +115,7 @@ def start_game(game_id):
     game_id = game_id.upper()
     for player in connected_players[game_id]:
         emit('game_started',room=player["sid"])
-    game = QuiplashGame(connected_players[game_id], host_sid=game_hosts[game_id])
+    game = EpigramGame(connected_players[game_id], host_sid=game_hosts[game_id])
     game.run_game()
 
 # Additional SocketIO events for game logic here...

@@ -3,19 +3,169 @@ from flask_socketio import SocketIO, emit
 import random
 import time
 
-class QuiplashGame:
+class EpigramGame:
     def __init__(self, players: list, host_sid):
-        self.players = players  # List of player names
+        self.players = players  # List of player objects, including names, sids for emits, etc.
         self.host_sid = host_sid # Host sid (for emit(room=host_sid)
         self.scores = {}   # Dictionary to keep track of scores
-        self.prompts = []  # List of prompts
+        self.prompts = []  # List of all prompts
         self.special_activities = ['acro_lash', 'comic_lash', 'word_lash']  # Special activities
-        self.safety_epigrams = [ # List of safety epigrams (like safety quips)
+        self.crutches = [ # List of crutches (like safety quips)
             'A beetle with an attitude', 
             'Your mom', 
             'Loaded Banana',
             'Your friend Kevin',
-            'Flim-Flam Epigram']
+            'Flim-Flam Epigram',
+            "Clown shoes",
+            "Moonwalking fish",
+            "Tofu sword fights",
+            "Banana peel surfing",
+            "Giraffe ballet",
+            "Wombat rodeo",
+            "Disco chickens",
+            "Ninja librarians",
+            "Jellybean juggling",
+            "Marshmallow dodgeball",
+            "Sock puppetry",
+            "Penguin tap-dance",
+            "Llama opera",
+            "Pajama parade",
+            "Synchronized sneezing",
+            "Bagpipe karaoke",
+            "Bubblegum sculpting",
+            "Pirate pancake",
+            "Robot poetry",
+            "Pickle juggling",
+            "Boomerang Frisbee",
+            "Snail racing",
+            "Zombie gardening",
+            "Elephant limbo",
+            "Cupcake cannon",
+            "Laser tag marshmallows",
+            "Alien salsa",
+            "Lawn mower ballet",
+            "Cactus pillow",
+            "T-Rex yoga",
+            "Unicorn rodeo",
+            "Squirrel karate",
+            "Disco ninja",
+            "Fish fashion",
+            "Hula hoop marathon",
+            "Taco Tuesday",
+            "Penguin wrestling",
+            "Jedi gardening",
+            "Juggling cacti",
+            "Ninja disco",
+            "Llama rodeo",
+            "Robot tap-dance",
+            "Pancake Olympics",
+            "Kangaroo karaoke",
+            "Pirate pogo",
+            "Giraffe surfing",
+            "Wombat opera",
+            "Moonwalking llamas",
+            "Jellybean ballet",
+            "Tofu juggling",
+            "Banana hammocks",
+            "Disco sloths",
+            "Robot rodeo",
+            "Cupcake fencing",
+            "Zombie fashion",
+            "Pickle limbo",
+            "Elephant disco",
+            "Alien rodeo",
+            "Lawn mower opera",
+            "Synchronized llamas",
+            "Boomerang gardening",
+            "Snail ballet",
+            "Laser tag pillow",
+            "Unicorn pancake",
+            "Marshmallow yoga",
+            "Cactus karaoke",
+            "Fish cannon",
+            "Hula hoop ninja",
+            "Taco sculpture",
+            "Penguin Frisbee",
+            "Jedi fashion",
+            "Squirrel rodeo",
+            "Disco gardening",
+            "T-Rex marathon",
+            "Giraffe limbo",
+            "Pirate yoga",
+            "Wombat disco",
+            "Jellybean wrestling",
+            "Moonwalking cacti",
+            "Elephant tap-dance",
+            "Cupcake opera",
+            "Zombie karaoke",
+            "Robot fencing",
+            "Alien ballet",
+            "Lawn mower surfing",
+            "Pickle fashion",
+            "Banana pillow",
+            "Unicorn cannon",
+            "Juggling pancakes",
+            "Marshmallow rodeo",
+            "Disco ninja turtles",
+            "Synchronized llamas",
+            "Boomerang opera",
+            "Snail yoga",
+            "Laser tag disco",
+            "Elephant fencing",
+            "Cactus karaoke",
+            "Alien limbo",
+            "Lawn mower fashion",
+            "Hula hoop pogo",
+            "T-Rex rodeo",
+            "Giraffe karaoke",
+            "Pirate disco",
+            "Wombat ninja",
+            "Jellybean fashion",
+            "Moonwalking pancakes",
+            "Unicorn yoga",
+            "Marshmallow fencing",
+            "Pickle opera",
+            "Banana rodeo",
+            "Synchronized turtles",
+            "Disco cacti",
+            "Robot yoga",
+            "Jedi limbo",
+            "Fish disco",
+            "Hula hoop opera",
+            "Elephant pogo",
+            "Zombie fencing",
+            "Cupcake karaoke",
+            "Alien tap-dance",
+            "Laser tag pancake",
+            "Lawn mower ballet",
+            "Boomerang ninja",
+            "Snail rodeo",
+            "T-Rex opera",
+            "Giraffe disco",
+            "Pancake fencing",
+            "Pirate yoga",
+            "Banana ninja",
+            "Wombat limbo",
+            "Synchronized disco",
+            "Jellybean tap-dance",
+            "Unicorn fencing",
+            "Marshmallow ninja",
+            "Pickle yoga",
+            "Elephant rodeo",
+            "Disco opera",
+            "Robot fencing",
+            "Jedi disco",
+            "Alien ballet",
+            "Fish karaoke",
+            "Hula hoop pancake",
+            "Cupcake tap-dance",
+            "Laser tag ninja",
+            "Lawn mower yoga",
+            "Snail disco",
+            "T-Rex fencing",
+            "Giraffe pogo"
+            ]
+        self.load_prompts()
 
     def run_game(self):
         self.show_instructions()
@@ -27,43 +177,9 @@ class QuiplashGame:
     def load_prompts(self, shuffle=True):
         with open('prompts/prompts.txt', 'r') as prompts:
             for prompt in prompts:
-                self.prompts.append(prompt)
+                self.prompts.append(prompt.strip())
         if shuffle:
             random.shuffle(self.prompts)
-
-        while len(self.players) < 3:
-            new_player = self.check_for_new_player()
-            if new_player:
-                self.players.append(new_player)
-                print(f"{new_player} has joined the game.")
-            time.sleep(1) # Short rest before checking again
-
-        while not self.all_in:
-            self.check_all_in_pressed()
-            time.sleep(1)
-
-        print("All players are in. Starting the game...")
-
-    def check_for_new_player(self):
-        # Needs to return None if there is no new player or the player
-        # name if one joins.
-        # Will likely be an issue of Flask implementation
-        test = True
-        if test:
-            return 'Player Name'
-        else:
-            return None
-
-    def check_all_in_pressed(self):
-        # TODO: Get Caleb's help for Javascript frontend
-            # In need of a frontend solution here that can tell when 'All In'
-            # gets pressed. When it gets pressed, I'd like to change self.all_in
-            # to be True using logic like that below.
-        javascript_button_pressed = True
-        if javascript_button_pressed:
-            self.all_in = True
-        else:
-            pass
 
     def show_instructions(self):
         # Display game instructions
@@ -74,12 +190,29 @@ class QuiplashGame:
     def play_round(self, round_num):
         # Logic for each round
         print(f"Round {round_num}")
+        self.get_prompts(len(self.players))
         prompts = self.make_prompt_pairs()
         self.deliver_prompts(prompts)
         self.collect_answers()
         self.voting_phase()
         self.show_results()
         self.update_leaderboard()
+
+    def get_prompts(self,numPlayers:int):
+        playerPrompts = [[] for i in range(numPlayers)]
+        selectedPrompts = set() # All of the prompts to be used during this game. It's a set so that there will be no duplicates.
+        for i in range(2): # For the first and second rounds. The third round will only have one prompt.
+            while len(selectedPrompts) < numPlayers*2:
+                selectedPrompts.add(random.choice(self.prompts))
+        selectedPrompts = list(selectedPrompts)
+        gamePrompts = [selectedPrompts[:len(selectedPrompts)//2],selectedPrompts[len(selectedPrompts)//2:]]
+        for round in gamePrompts:
+            for i in range(numPlayers):
+                playerPrompts[i].append(round[i])
+                playerPrompts[i].append(round[i-1])
+        print(playerPrompts)
+        return playerPrompts
+                
 
     def make_prompt_pairs(self, shuffle=True):
         prompts = [] # Local prompt list
@@ -138,5 +271,5 @@ class QuiplashGame:
 
 if __name__ == "__main__":
     # To start the game
-    game = QuiplashGame()
+    game = EpigramGame()
     game.run_game()
