@@ -10,7 +10,16 @@ socketio = SocketIO(app)
 ## Constants ##
 MAX_PLAYERS = 8
 MIN_PLAYERS = 3
-COLORS = ["#c93838","#e5a22e","#e3cb15","#68c938","#38c9c9","#3874c9","#9638c9","#c9389e"] #List of possible player colors as hex codes
+COLORS = [ #List of possible player colors as hex codes
+    "#c93838",
+    "#e5a22e",
+    "#e3cb15",
+    "#68c938",
+    "#38c9c9",
+    "#3874c9",
+    "#9638c9",
+    "#c9389e"
+    ]
 
 ## Reference Dictionaries ##
 connected_players = {} # keys are game id, values are player info
@@ -80,6 +89,7 @@ def handle_player_registration(data):
         player_color = colors_available[game_id].pop() #Assign a color to a player whilst removing it from the list so no other players can have it.
         connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id, 'color':player_color}]
         vips[game_id] = session_id
+        print(f"Player {player_name} has joined the game with ID {game_id}.")
         emit('vip')
         emit('new_player', {'name': player_name, 'vip': True, 'color':player_color}, room=game_hosts[game_id]) # Send VIP player name to host
         emit('color',player_color,room=session_id)
@@ -115,7 +125,7 @@ def start_game(game_id):
     game_id = game_id.upper()
     for player in connected_players[game_id]:
         emit('game_started',room=player["sid"])
-    game = EpigramGame(connected_players[game_id], host_sid=game_hosts[game_id])
+    game = EpigramGame(socketio, connected_players[game_id], host_sid=game_hosts[game_id])
     game.run_game()
 
 # Additional SocketIO events for game logic here...

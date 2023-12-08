@@ -16,8 +16,12 @@
             socket.emit('register_player', { name: playerName, id: gameID });
         }
 
-        function startGame(){
+        function startGame() {
             socket.emit('start_game', gameID);
+        }
+
+        function submitAnswers(answer1, answer2) {
+            socket.emit('userStrings', {answer1, answer2}, gameID);
         }
 
         socket.on('game_started',function(){

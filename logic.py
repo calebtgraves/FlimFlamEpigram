@@ -1,9 +1,10 @@
-from flask_socketio import emit
+from flask_socketio import SocketIO, emit
 import random
 import time
 
 class EpigramGame:
-    def __init__(self, players: list, host_sid):
+    def __init__(self, socketio: SocketIO, players: list, host_sid):
+        self.socketio = socketio
         self.players = players  # List of player objects, including names, sids for emits, etc.
         self.host_sid = host_sid # Host sid (for emit(room=host_sid)
         self.scores = {}   # Dictionary to keep track of scores
@@ -11,6 +12,7 @@ class EpigramGame:
         self.special_activities = ['acro_lash', 'comic_lash', 'word_lash']  # Special activities
         self.crutches = [] # List of crutches (like safety quips)
         self.load_prompts()
+        self.socketio.on_event('answer', self.collect_answers)
 
     def run_game(self):
         self.show_instructions()
@@ -53,18 +55,24 @@ class EpigramGame:
     def get_prompts(self, numPlayers:int):
         playerPrompts = [[] for i in range(numPlayers)]
         selectedPrompts = set() # All of the prompts to be used during this game. It's a set so that there will be no duplicates.
+
         for i in range(2): # For the first and second rounds. The third round will only have one prompt.
-            while len(selectedPrompts) < numPlayers*2:
+            while len(selectedPrompts) < numPlayers: # Should have as many prompts as players (each prompt goes to 2 players)
                 selectedPrompts.add(random.choice(self.prompts))
         selectedPrompts = list(selectedPrompts)
-        gamePrompts = [selectedPrompts[:len(selectedPrompts)//2],selectedPrompts[len(selectedPrompts)//2:]]
-        for round in gamePrompts:
-            for i in range(numPlayers):
-                playerPrompts[i].append(round[i])
-                playerPrompts[i].append(round[i-1])
+        
+        # Assign prompts for each player
+        for i in range(numPlayers):
+            # Current player's unique prompt
+            playerPrompts[i].append(selectedPrompts[i])
+            
+            # Previous player's prompt, will wrap around for the first player (-1 index points to end)
+            previous_player_prompt = selectedPrompts[i - 1]
+            playerPrompts[i].append(previous_player_prompt)
+
         print(playerPrompts)
-        return playerPrompts
-                
+
+        return playerPrompts    
 
     def make_prompt_pairs(self, shuffle=True):
         prompts = [] # Local prompt list
@@ -93,7 +101,7 @@ class EpigramGame:
             emit('new_prompt', {'prompt': self.players[i]['name']}, room=self.players[i]['sid'])
             emit('new_prompt', {'prompt': self.players[i]['name']}, room=self.players[i]['sid'])
 
-    def collect_answers(self):
+    def collect_answers(self, data):
         # TODO: Need frontend solution to collect answers from players for prompts
         pass
 
