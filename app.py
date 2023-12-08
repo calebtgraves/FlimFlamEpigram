@@ -94,14 +94,13 @@ def handle_disconnect():
                 player_name = player["name"]
                 print(f"Player {player_name} has disconnected.")
                 # Make the player's color available
-                print(player)
                 colors_available[game].append(player['color'])
                 random.shuffle(colors_available[game])
                 # Remove player from the list
                 connected_players[game].remove(player)
                 if len(connected_players[game]) == 0:
                     del connected_players[game]
-                    emit('last_player_disconnected',room=game_hosts[game])
+                    # emit('last_player_disconnected',room=game_hosts[game])
                 elif not connected_players[game][0]['vip']:
                     connected_players[game][0]['vip'] = True
                     vips[game] = connected_players[game][0]['sid']

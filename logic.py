@@ -166,6 +166,7 @@ class EpigramGame:
             "Giraffe pogo"
             ]
         self.load_prompts()
+        self.deliver_prompts(self.get_prompts(len(self.players)))
 
     def run_game(self):
         self.show_instructions()
@@ -190,9 +191,6 @@ class EpigramGame:
     def play_round(self, round_num):
         # Logic for each round
         print(f"Round {round_num}")
-        self.get_prompts(len(self.players))
-        prompts = self.make_prompt_pairs()
-        self.deliver_prompts(prompts)
         self.collect_answers()
         self.voting_phase()
         self.show_results()
@@ -210,35 +208,15 @@ class EpigramGame:
             for i in range(numPlayers):
                 playerPrompts[i].append(round[i])
                 playerPrompts[i].append(round[i-1])
-        print(playerPrompts)
+        random.shuffle(playerPrompts)
         return playerPrompts
-                
-    def make_prompt_pairs(self, shuffle=True):
-        prompts = [] # Local prompt list
-        players = len(self.players)
-        # Get unique prompts (1 per player) and add to local list
-        for i in range(players):
-            unique_prompt = self.prompts.pop(i) # Get and then remove prompt from list of prompts
-            prompts.append(unique_prompt)
 
-        prompt_pairs = [] # List of tuple prompt pairs
-        index = -1 # Start index at -1 to access end of list and go forward
-        for _ in range(players):
-            prompt_pair = (prompts[index], prompts[(index+1)])
-            prompt_pairs.append(prompt_pair)
-            index += 1 # Increment index at end
-
-        if shuffle:
-            random.shuffle(prompt_pairs)
-
-        return prompt_pairs
-            
-
-    def deliver_prompts(self, prompt_pairs: tuple):
-        prompt_pairs = prompt_pairs # Deliver 2 prompts per player
-        for i in range(len(self.players)): # TODO: Finish this part and receiving part in javascript
-            emit('new_prompt', {'prompt': self.player_dict[i]['name']}, room=self.player_dict[i]['sid'])
-            emit('new_prompt', {'prompt': self.player_dict[i]['name']}, room=self.player_dict[i]['sid'])
+    def deliver_prompts(self, prompt_pairs: list):
+        print(prompt_pairs)
+        for i in range(len(self.players)): # Send prompts to each player
+            prompts_for_player = prompt_pairs.pop()
+            prompts_for_player = [prompts_for_player[:2],prompts_for_player[2:]]
+            emit('new_prompts',prompts_for_player,room=self.players[i]['sid'])
 
     def collect_answers(self):
         # TODO: Need frontend solution to collect answers from players for prompts

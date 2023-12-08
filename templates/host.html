@@ -29,17 +29,22 @@
             newVip.id = "vip-player"
         })
 
-        socket.on('last_player_disconnected', function(){
-            document.getElementById('player-list').innerHTML = '';
+        socket.on('player_disconnected',function(data){
+            Array.from(document.getElementsByClassName(`TOKEN-${data}`))[0].remove()
         })
+
+        // socket.on('last_player_disconnected', function(){
+        //     document.getElementById('player-list').innerHTML = '';
+        // })
 
         socket.on('new_player', function(data) {
             const newPlayer = document.createElement('div');
             const playerName = document.createElement('p')
             playerName.innerText = data.name;
             playerName.style.color=data.color;
-            newPlayer.appendChild(playerName)
-            newPlayer.classList.add('player-token')
+            newPlayer.appendChild(playerName);
+            newPlayer.classList.add('player-token');
+            newPlayer.classList.add(`TOKEN-${data.name}`);
             if(data.vip){
                 newPlayer.id = "vip-player"
             }

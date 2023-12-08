@@ -54,6 +54,10 @@
             document.getElementById('gameID').style.border = '2px solid red'
         })
 
+        socket.on('new_prompts',function(data){
+            console.log(data)
+        })
+
         // Additional JavaScript for player interactions...
     </script>
 </head>
