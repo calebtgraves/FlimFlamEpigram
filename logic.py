@@ -213,7 +213,6 @@ class EpigramGame:
         print(playerPrompts)
         return playerPrompts
                 
-
     def make_prompt_pairs(self, shuffle=True):
         prompts = [] # Local prompt list
         players = len(self.players)
