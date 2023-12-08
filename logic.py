@@ -152,17 +152,17 @@ class EpigramGame:
 
     def acro_lash(self):
         print('Acro-Lash!')
-        emit('special_round')
+        emit('special_round', {'acronym': 'ATSI'})
         pass
 
     def comic_lash(self):
         print('Comic-Lash!')
-        emit('special_round')
+        emit('special_round', {'comic': 'comic_location'})
         pass
 
     def word_lash(self):
         print('Word-Lash!')
-        emit('special_round')
+        emit('special_round', {'prompt': 'prompt_with_word'})
         pass
 
     def show_winner(self):
