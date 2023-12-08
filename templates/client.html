@@ -21,7 +21,7 @@
         }
 
         function submitAnswers(answer1, answer2) {
-            socket.emit('userStrings', {answer1, answer2}, gameID);
+            socket.emit('player_answers', {answer1, answer2}, gameID);
         }
 
         socket.on('game_started',function(){

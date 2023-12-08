@@ -50,6 +50,18 @@
             // You can also update the DOM based on the received data
         });
 
+        function sleep(s) {
+            ms = s * 1000
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        socket.on('instructions',function(data){
+            let wait = data.wait;
+            console.log(`Listening to instructions for ${wait} seconds...`);
+            // TODO: Some kind of waiting logic 
+            sleep(wait) // wait for a bit
+        })
+
         // Additional JavaScript for managing game state...
     </script>
 </head>
