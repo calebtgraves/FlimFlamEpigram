@@ -7,6 +7,7 @@ class EpigramGame:
     def __init__(self, socketio: SocketIO, players: list, host_sid):
         self.socketio = socketio
         self.host_sid = host_sid # Host sid (for emit(room=host_sid)
+        self.round_num = 0
         
         self.players = players # List of player dicts
         #i.e. [..., {'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color}, ...]
@@ -45,16 +46,16 @@ class EpigramGame:
                     self.crutches.append(crutch.strip())
 
     def run_game(self):
-        self.start(1)
+        self.play_round() # Start the Python-Javascript back-and-forth
         # self.play_round(2)
         # self.play_special_round(3)
         # self.show_winner()
         print('Done!')
 
-    def start(self, round_num: int):
-        # Logic for each round
-        print(f"Round {round_num}")
-        self.send_to_all('round', {'number': round_num})
+    def play_round(self):
+        self.round_num += 1
+        print(f"Round {self.round_num}")
+        self.send_to_all('round', {'number': self.round_num})
 
     def get_prompts(self, numPlayers: int):
         playerPrompts = [[] for i in range(numPlayers)]
@@ -68,7 +69,13 @@ class EpigramGame:
                 playerPrompts[i].append(round[i])
                 playerPrompts[i].append(round[i-1])
         random.shuffle(playerPrompts)
-        return playerPrompts            
+        return playerPrompts       
+
+    def build_dictionary(self, prompts: list, player):
+        #prompts looks like this: [['prompt1','prompt2'],['prompt3','prompt4']]
+        for i, prompt_pair in enumerate(prompts):
+            self.prompt_answers[i+1][prompt_pair[0]][player] = {'answer': '[NO ANSWER]', 'votes': []}
+            self.prompt_answers[i+1][prompt_pair[1]][player] = {'answer': '[NO ANSWER]', 'votes': []}
 
     def deliver_prompts(self, prompt_pairs: list):
         for i, prompt_list in enumerate(prompt_pairs):
@@ -76,6 +83,7 @@ class EpigramGame:
         for i in range(len(self.players)): # Send prompts to each player
             prompts_for_player = prompt_pairs.pop()
             prompts_for_player = [prompts_for_player[:2], prompts_for_player[2:]]
+            self.build_dictionary(prompts_for_player,self.players[i].name)
             emit('new_prompts', prompts_for_player, room=self.players[i]['sid'])
 
     def receive_answers(self, data):
@@ -83,14 +91,10 @@ class EpigramGame:
             player = self.find_player('sid', request.sid) # Player giving answer
             prompts = data.prompts # List of two prompts
             answers = data.answers # List of two answers
-            round_num = data.round_num # Round number
             player_name = player['name']
 
             for prompt, answer in zip(prompts, answers):
-                if prompt not in self.prompt_answers[round_num]:
-                    self.prompt_answers[round_num][prompt] = {} # Make prompt key if it doesn't exist
-
-                self.prompt_answers[round_num][prompt][player_name] = {'answer': answer, 'votes': []}
+                self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer, 'votes': []}
             pass
 
     def receive_votes(self, data):
@@ -99,11 +103,10 @@ class EpigramGame:
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
             vote = data.vote # Player name
             prompt = data.prompt # Prompt being voted on
-            round_num = data.round_num # Round number
             player_voted_for = self.find_player('name', vote) # This is the player who got voted for
             player_voted_for_name = player_voted_for['name']
             
-            self.prompt_answers[round_num][prompt][player_voted_for_name]['votes'].append(player_sending_vote) # Show who voted for what
+            self.prompt_answers[self.round_num][prompt][player_voted_for_name]['votes'].append(player_sending_vote) # Show who voted for what
 
             player_voted_for['score'] += 50
         pass
@@ -116,12 +119,11 @@ class EpigramGame:
         #         print(player_name['answer'])
         #     print()
         # Emit round results to the host
-        round_num = data.round_num
-        emit('answers', self.prompt_answers[round_num], room=self.host_sid) # Give dictionary to host to display
+        emit('answers', self.prompt_answers[self.round_num], room=self.host_sid) # Give dictionary to host to display
         pass
 
-    def show_votes(self, round_num):
-        for prompt in self.prompt_answers[round_num].keys():
+    def show_votes(self):
+        for prompt in self.prompt_answers[self.round_num].keys():
             print(prompt)
         pass
 
@@ -164,10 +166,10 @@ class EpigramGame:
             print(f'    {i}. {name}')
         pass
 
-    def play_special_round(self, round_num: int): # Seems silly as round_num will always be 3, but this helps with self.prompt_answers
+    def play_special_round(self): # Seems silly as round_num will always be 3, but this helps with self.prompt_answers
         # Logic for the special round
-        print(f"--Round {round_num}: Special Round--")
-        self.send_to_all('round', {'number': round_num})
+        print(f"--Round {self.round_num}: Special Round--")
+        self.send_to_all('round', {'number': self.round_num})
         # Choose a special activity
         random.choice(self.special_activities)()
 
