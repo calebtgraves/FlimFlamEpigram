@@ -69,6 +69,10 @@ def handle_player_registration(data):
     player_name = data['name']
     game_id = data['id'].upper()
     session_id = request.sid
+    for player in connected_players[game_id]:
+        if player["name"].strip() == data["name"].strip():
+            emit('name_taken',room=session_id)
+            return
     if game_id not in active_codes:
         emit('invalid_code',room=session_id)
         print(f'Game code "{game_id}" does not exist.')

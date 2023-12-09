@@ -35,9 +35,9 @@ class EpigramGame:
         self.socketio.on_event('vote', self.receive_votes) # Get player votes
         self.socketio.on_event('special_vote', self.special_receive_votes) # Get player special votes
 
-        # Send updated dictionary of prompts, answers, votes to host.html
-        self.socketio.on_event('client_input_done', self.send_results_dict)
-
+        # Receive requests from host.html
+        self.socketio.on_event('client_input_done', self.send_results_dict) # Send updated dictionary of prompts, answers, votes to host.html
+        self.socketio.on_event('votes_needed', self.send_clients_challenge)
 
     def load_prompts(self, shuffle=True):
             # Load prompts
@@ -127,6 +127,11 @@ class EpigramGame:
             if self.answers_received == len(self.players):
                 emit('players_done', room=self.host_sid)
                 print(f'All {len(self.players)} players have submitted their answers.')
+
+    def send_clients_challenge(self, data):
+        if self.host_sid == request.sid:
+            event = data.prompts
+            self.send_to_all(event, data, to_host=False)
 
     def receive_votes(self, data):
         # TODO: Quiplash awards points based on the percent of players who chose an answer.

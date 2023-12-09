@@ -81,6 +81,11 @@
             document.getElementById('gameID').style.border = '2px solid red'
         })
 
+        socket.on('name_taken',function(){
+            document.getElementById('name-taken').style.display = 'inline';
+            document.getElementById('playerName').style.border = '2px solid red';
+        })
+
         socket.on('new_prompts',function(data){
             myPrompts = data.myPrompts
             myCrutches = data.myCrutches
@@ -104,7 +109,7 @@
 <body>
     <main id="client-main">
         <div id="join-game-form">
-            <label for="playerName">Enter your name:</label>
+            <label for="playerName">Enter your name: <span id="name-taken">Name Already Taken</span></label>
             <input type="text" id="playerName" autocomplete="off">
             <label for="playerName">Game Id: <span id="invalid-code">Invalid Code</span></label>
             <input type="text" id="gameID" autocomplete="off"/>

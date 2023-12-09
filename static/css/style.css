@@ -132,6 +132,7 @@ main{
     font-weight: 700;
     font-style: normal;
     box-shadow: rgba(0,0,0,50%)0px 5px 10px;
+    flex-shrink:0;
     animation:bobbing 4s ease-in-out infinite;
 }
 .player-token p{
@@ -139,7 +140,6 @@ main{
     width: 100%;
     word-wrap: break-word;
     text-align: center;
-    flex-shrink:0;
 }
 #vip-player{
     border-color:gold;
@@ -218,6 +218,13 @@ button:active{
     width:100%;
     font-size:1.5rem;
 }
+#name-taken{
+    display:none;
+    color:red;
+    text-align: center;
+    width:100%;
+    font-size:1.5rem;
+}
 #answering{
     display:none;
     height:100%;
@@ -269,4 +276,9 @@ button:active{
     position:absolute;
     top:1rem;
     right:1rem;
+}
+#challenge{
+    display:none;
+    height:100%;
+    width:100%;
 }
