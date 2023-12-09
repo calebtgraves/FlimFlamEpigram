@@ -229,7 +229,10 @@ button:active{
     width:100%;
     align-items:center;
 }
-#crutch-button{
-    width:50%;
-    font-size: 1.5rem;
+#answering #crutch-button{
+    width: 50%;
+    font-size: 1.2rem;
+    position: absolute;
+    bottom: 1em;
+    max-width: 250px;
 }

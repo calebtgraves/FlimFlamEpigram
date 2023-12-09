@@ -77,12 +77,12 @@
             let timer = 120
             console.log(timer,players_done)
             const countdown = setInterval(()=>{
+                timer -= 1
+                console.log(timer)
                 if(timer == 0 || players_done){
                     clearInterval(countdown)
                     socket.emit('answers_done',{'round_num':data.number})
                 }
-                timer -= 1
-                console.log(timer)
             },1000)
         })
 

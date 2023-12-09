@@ -29,7 +29,7 @@
             document.getElementById('answering').style.display = 'none';
         }
 
-        function submitAnswer(response=docuement.getElementById('answer-prompt').value, crutch=false){
+        function submitAnswer(response=document.getElementById('answer-prompt').value, crutch=false){
             myAnswers.push({'response':response,'crutch':crutch})
             document.getElementById('answer-prompt').value = ''
             if(myAnswers.length == 2){
