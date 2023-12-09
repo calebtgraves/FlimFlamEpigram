@@ -72,9 +72,10 @@
         })
 
         socket.on('round',function(data){
+            document.getElementById('player-list').style.height = "100%";
             if(data.number == 1){
                 document.getElementById('host-main-logo').style.display = 'none';
-                document.getElementById('code-containter').style.display = 'none';
+                document.getElementById('code-container').style.display = 'none';
             }
             Array.from(document.getElementsByClassName('player-token')).forEach((token)=>{
                 token.classList.add('grey-out')

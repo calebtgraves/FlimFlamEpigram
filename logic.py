@@ -122,9 +122,11 @@ class EpigramGame:
                 self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer['response'], 'crutch':answer['crutch'], 'votes': []}
 
             emit('player_answer', {'name': player_name}, room=self.host_sid)
+            print(f'{self.answers_received}/{len(self.players)} players have submitted answers...')
 
             if self.answers_received == len(self.players):
                 emit('players_done', room=self.host_sid)
+                print(f'All {len(self.players)} players have submitted their answers.')
 
     def receive_votes(self, data):
         # TODO: Quiplash awards points based on the percent of players who chose an answer.

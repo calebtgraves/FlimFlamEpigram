@@ -38,6 +38,7 @@
             }
             else{
                 document.getElementById('prompt').innerText = myPrompts[round_num-1][1]
+                document.getElementById('prompt-container').innerText = myPrompts[round_num-1][1]
             }
         }
         function useCrutch(){
@@ -94,6 +95,7 @@
             console.log(round_num)
             console.log(myPrompts[round_num-1][0])
             document.getElementById('prompt').innerText = myPrompts[round_num-1][0]
+            document.getElementById('prompt-container').innerText = myPrompts[round_num-1][1]
         })
 
         // Additional JavaScript for player interactions...
