@@ -2,6 +2,7 @@ from flask import request
 from flask_socketio import SocketIO, emit
 import os
 import random
+from app import get_letters
 
 class EpigramGame:
     def __init__(self, socketio: SocketIO, players: list, host_sid):
@@ -9,10 +10,11 @@ class EpigramGame:
         self.host_sid = host_sid # Host sid (for emit(room=host_sid)
         
         self.players = players # List of player dicts
-        #[..., {'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color}, ...]
+        #i.e. [..., {'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color}, ...]
 
         self.prompts = []  # List of all prompts
-        self.prompt_answers = {1: {}, 2: {}, 3: {}} # prompts and answers (i.e. {'round x': {'prompt x': {'player 1': {'answer': answer, 'votes': [votes_by_name]}}})
+        self.prompt_answers = {1: {}, 2: {}, 3: {}} # prompts and answers
+        # i.e. {'round x': {'prompt x': {'player 1': {'answer': answer, 'votes': [player objects]}}}
         self.crutches = [] # List of crutches (like safety quips)
 
         self.special_activities = [self.acro_lash, self.comic_lash, self.word_lash]  # Special activities
@@ -69,7 +71,8 @@ class EpigramGame:
         return playerPrompts            
 
     def deliver_prompts(self, prompt_pairs: list):
-        print(prompt_pairs)
+        for i, prompt_list in enumerate(prompt_pairs):
+            print(i+1, prompt_list)
         for i in range(len(self.players)): # Send prompts to each player
             prompts_for_player = prompt_pairs.pop()
             prompts_for_player = [prompts_for_player[:2], prompts_for_player[2:]]
@@ -114,7 +117,7 @@ class EpigramGame:
         #     print()
         # Emit round results to the host
         round_num = data.round_num
-        emit('answers', self.prompt_answers[round_num], room=self.host_sid)
+        emit('answers', self.prompt_answers[round_num], room=self.host_sid) # Give dictionary to host to display
         pass
 
     def show_votes(self, round_num):
@@ -170,7 +173,8 @@ class EpigramGame:
 
     def acro_lash(self):
         print('Acro-Lash!')
-        self.send_to_all('acro_lash', {'acronym': 'ATSI'})
+        acronym = get_letters()
+        self.send_to_all('acro_lash', {'acronym': acronym.upper()})
         pass
 
     def comic_lash(self):
@@ -196,7 +200,7 @@ class EpigramGame:
         for player in self.players:
             emit(event, data, room=player['sid'])
         if to_host:
-            emit(event, data, room=self.host_id)
+            emit(event, data, room=self.host_sid)
 
     def show_winner(self):
         # Determine and show the game winner

@@ -29,7 +29,7 @@ colors_available = {} #Stores per game what player colors have not been assigned
 
 active_codes = [] #List of active game codes. Used to let players know if they type in an invalid game code.
 
-def get_letters(num_letters): # Yodahe's random letter function
+def get_letters(num_letters=4): # Yodahe's random letter function
 
     random_letters = [random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ') for letter in range(num_letters)]
 
@@ -47,9 +47,9 @@ def client():
 
 @socketio.on('game_id_request')
 def serve_id():
-    game_id = get_letters(4)
+    game_id = get_letters()
     while game_id in active_codes: #Make sure that there isn't a repeat code created.
-        game_id = get_letters(4)
+        game_id = get_letters()
     active_codes.append(game_id)
     session_id = request.sid
     game_hosts[game_id] = session_id
@@ -104,14 +104,13 @@ def handle_disconnect():
                 player_name = player["name"]
                 print(f"Player {player_name} has disconnected.")
                 # Make the player's color available
-                print(player)
                 colors_available[game].append(player['color'])
                 random.shuffle(colors_available[game])
                 # Remove player from the list
                 connected_players[game].remove(player)
                 if len(connected_players[game]) == 0:
                     del connected_players[game]
-                    emit('last_player_disconnected',room=game_hosts[game])
+                    # emit('last_player_disconnected',room=game_hosts[game])
                 elif not connected_players[game][0]['vip']:
                     connected_players[game][0]['vip'] = True
                     vips[game] = connected_players[game][0]['sid']

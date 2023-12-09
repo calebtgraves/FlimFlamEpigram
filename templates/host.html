@@ -29,6 +29,10 @@
             newVip.id = "vip-player"
         })
 
+        socket.on('player_disconnected',function(data){
+            Array.from(document.getElementsByClassName(`TOKEN-${data}`))[0].remove()
+        })
+
         socket.on('last_player_disconnected', function(){
             document.getElementById('player-list').innerHTML = '';
         })
@@ -38,16 +42,15 @@
             const playerName = document.createElement('p')
             playerName.innerText = data.name;
             playerName.style.color=data.color;
-            newPlayer.appendChild(playerName)
-            newPlayer.classList.add('player-token')
+            newPlayer.appendChild(playerName);
+            newPlayer.classList.add('player-token');
+            newPlayer.classList.add(`TOKEN-${data.name}`);
             if(data.vip){
                 newPlayer.id = "vip-player"
             }
             newPlayer.style.backgroundColor=data.color
             document.getElementById('player-list').appendChild(newPlayer);
             var vip = data.vip
-            // alert(data.id);  // For example, alerting the received message
-            // You can also update the DOM based on the received data
         });
 
         function sleep(s) {

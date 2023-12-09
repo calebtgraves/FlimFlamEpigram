@@ -10,6 +10,7 @@
         var socket = io();
         var gameID
         var myPrompts
+        var round_num = 0
         var answers = []
 
         function sendName() {
@@ -24,13 +25,18 @@
 
         function submitAnswers(answer1, answer2) {
             socket.emit('player_answers', {answer1, answer2});
+            document.getElementById('answering').style.display = 'none'
         }
 
         function submitAnswer(){
             answers.push(document.getElementById('answer-prompt').value)
             document.getElementById('answer-prompt').value = ''
             if(answers.length == 2){
-                submitAnswers(answers[0],answer)
+                submitAnswers(answers[0],answers[1])
+                answers = []
+            }
+            else{
+                document.getElementById('prompt').innerText = myPrompts[round_num-1][1]
             }
         }
 
@@ -74,8 +80,10 @@
         })
 
         socket.on('round',function(data){
-            document.getElementById('answering').display = flex;
-            console.log(myPrompts[data.number][0])
+            document.getElementById('answering').style.display = 'flex';
+            round_num = data.number
+            console.log(myPrompts[round_num-1][0])
+            document.getElementById('prompt').innerText = myPrompts[round_num-1][0]
         })
 
         // Additional JavaScript for player interactions...
