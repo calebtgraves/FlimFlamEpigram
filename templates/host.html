@@ -72,18 +72,34 @@
         })
 
         socket.on('round',function(data){
+            if(data.number == 1){
+                document.getElementById('host-main-logo').style.display = 'none';
+                document.getElementById('code-containter').style.display = 'none';
+            }
+            Array.from(document.getElementsByClassName('player-token')).forEach((token)=>{
+                token.classList.add('grey-out')
+            })
             console.log(data.number)
             players_done = false
             let timer = 120
-            console.log(timer,players_done)
+            console.log(timer, players_done)
             const countdown = setInterval(()=>{
                 timer -= 1
                 console.log(timer)
                 if(timer == 0 || players_done){
                     clearInterval(countdown)
-                    socket.emit('answers_done',{'round_num':data.number})
+                    Array.from(document.getElementsByClassName('player-token')).forEach((token)=>{
+                        if(token.classList.contains('grey-out')){
+                            token.classList.remove('grey-out')
+                        }
+                    })
+                    socket.emit('answers_done', {'round_num': data.number})
                 }
             },1000)
+        })
+
+        socket.on('player_answer',function(data){
+            Array.from(document.getElementsByClassName(`TOKEN-${data.name}`))[0].classList.remove('grey-out');
         })
 
         // dictionary[prompt][player_name] = {'answer': answer, 'votes': [player objects]} // dictionary structure for reference

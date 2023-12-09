@@ -138,11 +138,14 @@ main{
     width: 100%;
     word-wrap: break-word;
     text-align: center;
+    flex-shrink:0;
+    box-shadow: rgba(0,0,0,50%)0px 5px 10px;
 }
 #vip-player{
     border-color:gold;
     background-image:url('../images/VipStar.svg');
     background-blend-mode:overlay;
+    background-repeat: no-repeat;
 }
 #player-list{
     display:flex;
@@ -235,4 +238,27 @@ button:active{
     position: absolute;
     bottom: 1em;
     max-width: 250px;
+}
+#prompt-container{
+    font-size: 2.2rem;
+    text-align: center;
+    position: absolute;
+    top:0;
+    padding: 1rem;
+    width: 100%;
+    filter:brightness(75%);
+    user-select: none;
+}
+#prompt{
+    color: white;
+    text-align: center;
+    position:absolute;
+    top:0;
+    font-size:2.2rem;
+    padding:1rem;
+    width: 100%;
+}
+.player-token.grey-out{
+    filter: saturate(0%);
+    animation: none;
 }

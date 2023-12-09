@@ -7,14 +7,16 @@ class EpigramGame:
     def __init__(self, socketio: SocketIO, players: list, host_sid):
         self.socketio = socketio
         self.host_sid = host_sid # Host sid (for emit(room=host_sid)
+
         self.round_num = 0
+        self.answers_received = 0
         
         self.players = players # List of player dicts
         #i.e. [..., {'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color}, ...]
 
         self.prompts = []  # List of all prompts
         self.prompt_answers = {1: {}, 2: {}, 3: {}} # prompts and answers
-        # i.e. {'round x': {'prompt x': {'player 1': {'answer': answer, 'votes': [player objects]}}}
+        # i.e. {'round x': {'prompt x': {'player 1': {'answer': answer, 'votes': [player objects], 'crutch': bool}}}
         self.crutches = [] # List of crutches (like safety quips)
 
         self.special_activities = [self.acro_lash, self.comic_lash, self.word_lash]  # Special activities
@@ -50,7 +52,6 @@ class EpigramGame:
         # self.play_round(2)
         # self.play_special_round(3)
         # self.show_winner()
-        print('Done!')
 
     def play_round(self):
         self.round_num += 1
@@ -78,8 +79,8 @@ class EpigramGame:
                 self.prompt_answers[i+1][prompt_pair[0]] = {}
             if not prompt_pair[1] in self.prompt_answers[i+1]:
                 self.prompt_answers[i+1][prompt_pair[1]] = {}
-            self.prompt_answers[i+1][prompt_pair[0]][player] = {'answer': '[NO ANSWER]', 'votes': []}
-            self.prompt_answers[i+1][prompt_pair[1]][player] = {'answer': '[NO ANSWER]', 'votes': []}
+            self.prompt_answers[i+1][prompt_pair[0]][player] = {'answer': '[NO ANSWER]', 'crutch': False, 'votes': []}
+            self.prompt_answers[i+1][prompt_pair[1]][player] = {'answer': '[NO ANSWER]', 'crutch': False, 'votes': []}
     
     def get_crutches(self): # This function will be used to generate the crutches that each player will be able to use throughout the game.
         myCrutches = set() # Use a set so that each player will not have any duplicates.
@@ -88,7 +89,7 @@ class EpigramGame:
         return list(myCrutches)
 
     def deliver_prompts(self, prompt_pairs: list):
-        player_names = [player['player_name'] for player in self.players]
+        player_names = [player['name'] for player in self.players]
         for name, prompt_list in zip(player_names, prompt_pairs):
             print(name, prompt_list)
         print(self.players)
@@ -100,15 +101,25 @@ class EpigramGame:
 
     def receive_answers(self, data):
         if self.find_player('sid', request.sid):
+            self.answers_received += 1
             player = self.find_player('sid', request.sid) # Player giving answer
-            prompts = data.prompts # List of two prompts
-            answers = data.answers # List of two answers
+            print(data)
+            prompts = data['prompts'] # List of two prompts
+            answers = data['answers'] # List of two dictionaries: {'response': string, 'crutch': bool}
             player_name = player['name']
 
             for prompt, answer in zip(prompts, answers):
-                self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer['answer'], 'crutch':answer['crutch'], 'votes': []}
+                self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer['response'], 'crutch':answer['crutch'], 'votes': []}
+
+            emit('player_answer', {'name': player_name}, room=self.host_sid)
+
+            if self.answers_received == len(self.players):
+                emit('players_done', room=self.host_sid)
 
     def receive_votes(self, data):
+        # TODO: Quiplash awards points based on the percent of players who chose an answer.
+        # Quiplash also awards bonus points for a Quiplash and keeps track of which answers
+        # were Quiplashes. We're planning to add this functionality in the future.
         if self.find_player('sid', request.sid):
             # Conduct voting for each prompt
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
@@ -118,18 +129,14 @@ class EpigramGame:
             player_voted_for_name = player_voted_for['name']
             
             self.prompt_answers[self.round_num][prompt][player_voted_for_name]['votes'].append(player_sending_vote) # Show who voted for what
-
-            player_voted_for['score'] += 50
+            if not self.prompt_answers[self.round_num][prompt][player_voted_for_name]['crutch']:
+                player_voted_for['score'] += 50
+            else:
+                player_voted_for['score'] += 25
         pass
 
-    def show_answers(self, data):
-        # # Show player answers
-        # for prompt in self.prompt_answers[round_num]:
-        #     print(prompt)
-        #     for player_name in prompt:
-        #         print(player_name['answer'])
-        #     print()
-        # Emit round results to the host
+    def show_answers(self):
+        # Have host show player answers
         emit('answers', self.prompt_answers[self.round_num], room=self.host_sid) # Give dictionary to host to display
         pass
 

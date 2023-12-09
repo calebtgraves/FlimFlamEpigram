@@ -24,8 +24,8 @@
             socket.emit('start_game', gameID);
         }
 
-        function submitAnswers(answers, prompts) {
-            socket.emit('answer', {'answers':answers,'prompts':prompts});
+        function sendAnswers(answers, prompts) {
+            socket.emit('answer', {'answers': answers,'prompts': prompts});
             document.getElementById('answering').style.display = 'none';
         }
 
@@ -33,7 +33,7 @@
             myAnswers.push({'response':response,'crutch':crutch})
             document.getElementById('answer-prompt').value = ''
             if(myAnswers.length == 2){
-                submitAnswers(myAnswers,myPrompts[round_num-1])
+                sendAnswers(myAnswers, myPrompts[round_num-1])
                 myAnswers = []
             }
             else{
@@ -64,6 +64,8 @@
             document.getElementById('welcome').style.backgroundColor = data;
             document.getElementById('welcome').style.display = 'flex';
             document.getElementById('welcome-message').innerText = `Welcome, ${playerName.value}! Do you see your name on the screen?`;
+            document.getElementById('prompt-container').style.color = data;
+            document.getElementById('prompt-container').style.backgroundColor = data;
         })
 
         socket.on('invalid_code',function(){
@@ -111,8 +113,11 @@
             <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
         </div>
         <div id="answering">
+            <div id="prompt-container">
+                prompt
+            </div>
             <p id="prompt"></p>
-            <input id="answer-prompt"/>
+            <input id="answer-prompt" placeholder="Your response..."/>
             <div id="answering-buttons">
                 <button id="prompt-continue" onclick="submitAnswer()">continue</button>
                 <button id="crutch-button" onclick="useCrutch()">Use a crutch!</button>
