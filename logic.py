@@ -74,17 +74,28 @@ class EpigramGame:
     def build_dictionary(self, prompts: list, player):
         #prompts looks like this: [['prompt1','prompt2'],['prompt3','prompt4']]
         for i, prompt_pair in enumerate(prompts):
+            if not prompt_pair[0] in self.prompt_answers[i+1]:
+                self.prompt_answers[i+1][prompt_pair[0]] = {}
+            if not prompt_pair[1] in self.prompt_answers[i+1]:
+                self.prompt_answers[i+1][prompt_pair[1]] = {}
             self.prompt_answers[i+1][prompt_pair[0]][player] = {'answer': '[NO ANSWER]', 'votes': []}
             self.prompt_answers[i+1][prompt_pair[1]][player] = {'answer': '[NO ANSWER]', 'votes': []}
+    
+    def get_crutches(self): # This function will be used to generate the crutches that each player will be able to use throughout the game.
+        myCrutches = set() # Use a set so that each player will not have any duplicates.
+        while len(myCrutches) < 5: # The number of prompts that each player will answer using a while loop to make sure we will have 5 no matter what.
+            myCrutches.add(random.choice(self.crutches))
+        return list(myCrutches)
 
     def deliver_prompts(self, prompt_pairs: list):
         for i, prompt_list in enumerate(prompt_pairs):
             print(i+1, prompt_list)
+        print(self.players)
         for i in range(len(self.players)): # Send prompts to each player
             prompts_for_player = prompt_pairs.pop()
             prompts_for_player = [prompts_for_player[:2], prompts_for_player[2:]]
-            self.build_dictionary(prompts_for_player,self.players[i].name)
-            emit('new_prompts', prompts_for_player, room=self.players[i]['sid'])
+            self.build_dictionary(prompts_for_player,self.players[i]['name'])
+            emit('new_prompts', {'myPrompts':prompts_for_player,'myCrutches':self.get_crutches()}, room=self.players[i]['sid'])
 
     def receive_answers(self, data):
         if self.find_player('sid', request.sid):
@@ -94,8 +105,7 @@ class EpigramGame:
             player_name = player['name']
 
             for prompt, answer in zip(prompts, answers):
-                self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer, 'votes': []}
-            pass
+                self.prompt_answers[self.round_num][prompt][player_name] = {'answer': answer['answer'], 'crutch':answer['crutch'], 'votes': []}
 
     def receive_votes(self, data):
         if self.find_player('sid', request.sid):

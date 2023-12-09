@@ -10,8 +10,9 @@
         var socket = io();
         var gameID
         var myPrompts
+        var myCrutches
         var round_num = 0
-        var answers = []
+        var myAnswers = []
 
         function sendName() {
             var playerName = document.getElementById('playerName').value;
@@ -23,21 +24,24 @@
             socket.emit('start_game', gameID);
         }
 
-        function submitAnswers(answer1, answer2) {
-            socket.emit('player_answers', {answer1, answer2});
-            document.getElementById('answering').style.display = 'none'
+        function submitAnswers(answers, prompts) {
+            socket.emit('answer', {'answers':answers,'prompts':prompts});
+            document.getElementById('answering').style.display = 'none';
         }
 
-        function submitAnswer(){
-            answers.push(document.getElementById('answer-prompt').value)
+        function submitAnswer(response=docuement.getElementById('answer-prompt').value, crutch=false){
+            myAnswers.push({'response':response,'crutch':crutch})
             document.getElementById('answer-prompt').value = ''
-            if(answers.length == 2){
-                submitAnswers(answers[0],answers[1])
-                answers = []
+            if(myAnswers.length == 2){
+                submitAnswers(myAnswers,myPrompts[round_num-1])
+                myAnswers = []
             }
             else{
                 document.getElementById('prompt').innerText = myPrompts[round_num-1][1]
             }
+        }
+        function useCrutch(){
+            submitAnswer(myCrutches.pop(),true) // using submitAnswer but removing and sending a crutch, and submitting as a crutch.
         }
 
         socket.on('game_started',function(){
@@ -75,8 +79,10 @@
         })
 
         socket.on('new_prompts',function(data){
-            myPrompts = data
+            myPrompts = data.myPrompts
+            myCrutches = data.myCrutches
             console.log(myPrompts)
+            console.log(myCrutches)
         })
 
         socket.on('round',function(data){
@@ -107,7 +113,10 @@
         <div id="answering">
             <p id="prompt"></p>
             <input id="answer-prompt"/>
-            <button id="prompt-continue" onclick="submitAnswer()">continue</button>
+            <div id="answering-buttons">
+                <button id="prompt-continue" onclick="submitAnswer()">continue</button>
+                <button id="crutch-button" onclick="useCrutch()">Use a crutch!</button>
+            </div>
         </div> 
     </main>
     <!-- Additional elements for player interactions -->
