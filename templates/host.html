@@ -62,6 +62,32 @@
             sleep(wait) // wait for a bit
         })
 
+
+        let players_done
+        socket.on('players_done',function(){
+            players_done = true
+        })
+
+        socket.on('round',function(data){
+            console.log(data.number)
+            players_done = false
+            let timer = 120
+            console.log(timer)
+            while(timer > 0 && !players_done){
+                setTimeout(()=>{
+                    timer -= 1
+                    console.log(timer)
+                },1000)
+            }
+            socket.emit('answers_done',{'round_num':data.number})
+        })
+
+        // dictionary[prompt][player_name] = {'answer': answer, 'votes': [player objects]} // dictionary structure for reference
+
+        socket.on('answers',function(data){
+            console.log(data);
+        })
+
         // Additional JavaScript for managing game state...
     </script>
 </head>

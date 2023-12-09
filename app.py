@@ -76,7 +76,7 @@ def handle_player_registration(data):
     if game_id in connected_players:
         if len(connected_players[game_id]) < MAX_PLAYERS:
             player_color = colors_available[game_id].pop() #Assign a color to a player whilst removing it from the list so no other players can have it.
-            connected_players[game_id].append({'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'votes': {'round1': [], 'round2': [], 'round3': []}, 'color':player_color})
+            connected_players[game_id].append({'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color})
             if len(connected_players[game_id]) == MIN_PLAYERS:
                 emit('min_reached', room=vips[game_id])
             print(f"Player {player_name} has joined the game with ID {game_id}.")
@@ -87,7 +87,7 @@ def handle_player_registration(data):
             emit('game_full',room=session_id)
     else:
         player_color = colors_available[game_id].pop() #Assign a color to a player whilst removing it from the list so no other players can have it.
-        connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id, 'score': 0, 'votes': {'round1': [], 'round2': [], 'round3': []}, 'color':player_color}]
+        connected_players[game_id] = [{'name': player_name, 'vip': True, 'sid': session_id, 'score': 0, 'color':player_color}]
         vips[game_id] = session_id
         print(f"Player {player_name} has joined the game with ID {game_id}.")
         emit('vip')

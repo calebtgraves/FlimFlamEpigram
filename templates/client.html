@@ -9,6 +9,8 @@
     <script type="text/javascript" defer>
         var socket = io();
         var gameID
+        var myPrompts
+        var answers = []
 
         function sendName() {
             var playerName = document.getElementById('playerName').value;
@@ -21,7 +23,15 @@
         }
 
         function submitAnswers(answer1, answer2) {
-            socket.emit('player_answers', {answer1, answer2}, gameID);
+            socket.emit('player_answers', {answer1, answer2});
+        }
+
+        function submitAnswer(){
+            answers.push(document.getElementById('answer-prompt').value)
+            document.getElementById('answer-prompt').value = ''
+            if(answers.length == 2){
+                submitAnswers(answers[0],answer)
+            }
         }
 
         socket.on('game_started',function(){
@@ -58,6 +68,16 @@
             document.getElementById('gameID').style.border = '2px solid red'
         })
 
+        socket.on('new_prompts',function(data){
+            myPrompts = data
+            console.log(myPrompts)
+        })
+
+        socket.on('round',function(data){
+            document.getElementById('answering').display = flex;
+            console.log(myPrompts[data.number][0])
+        })
+
         // Additional JavaScript for player interactions...
     </script>
 </head>
@@ -74,6 +94,11 @@
             <h1 id="welcome-message"></h1>
             <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
         </div>
+        <div id="answering">
+            <p id="prompt"></p>
+            <input id="answer-prompt"/>
+            <button id="prompt-continue" onclick="submitAnswer()">continue</button>
+        </div> 
     </main>
     <!-- Additional elements for player interactions -->
 </body>
