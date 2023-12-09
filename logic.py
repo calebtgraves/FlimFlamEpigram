@@ -20,6 +20,7 @@ class EpigramGame:
         self.load_prompts()
         self.socketio.on_event('answer', self.receive_answers) # Get prompt answers
         self.socketio.on_event('vote', self.receive_votes) # Get player votes
+        self.deliver_prompts(self.get_prompts(len(self.players)))
 
     def load_prompts(self, shuffle=True):
             # Load prompts
@@ -43,83 +44,49 @@ class EpigramGame:
 
     def show_instructions(self):
         # Display game instructions
-        wait_time = 15
-        emit("instructions", {'wait': wait_time}, room=self.host_sid)
+        emit("instructions", room=self.host_sid)
 
     def play_round(self, round_num):
         # Logic for each round
         print(f"Round {round_num}")
-        self.get_prompts(len(self.players))
-        prompts = self.make_prompt_pairs()
-        self.deliver_prompts(prompts)
         self.show_results(round_num)
         self.update_leaderboard()
 
-    def get_prompts(self, numPlayers:int):
+    def get_prompts(self, numPlayers: int):
         playerPrompts = [[] for i in range(numPlayers)]
         selectedPrompts = set() # All of the prompts to be used during this game. It's a set so that there will be no duplicates.
-
-        for i in range(2): # For the first and second rounds. The third round will only have one prompt.
-            while len(selectedPrompts) < numPlayers: # Should have as many prompts as players (each prompt goes to 2 players)
-                selectedPrompts.add(random.choice(self.prompts))
+        while len(selectedPrompts) < numPlayers*2:
+            selectedPrompts.add(random.choice(self.prompts))
         selectedPrompts = list(selectedPrompts)
-        
-        # Assign prompts for each player
-        for i in range(numPlayers):
-            # Current player's unique prompt
-            playerPrompts[i].append(selectedPrompts[i])
-            
-            # Previous player's prompt, will wrap around for the first player (-1 index points to end)
-            previous_player_prompt = selectedPrompts[i - 1]
-            playerPrompts[i].append(previous_player_prompt)
+        gamePrompts = [selectedPrompts[:len(selectedPrompts)//2],selectedPrompts[len(selectedPrompts)//2:]]
+        for round in gamePrompts:
+            for i in range(numPlayers):
+                playerPrompts[i].append(round[i])
+                playerPrompts[i].append(round[i-1])
+        random.shuffle(playerPrompts)
+        return playerPrompts            
 
-        print(playerPrompts)
-
-        return playerPrompts    
-
-    def make_prompt_pairs(self, shuffle=True):
-        prompts = [] # Local prompt list
-        players = len(self.players)
-        # Get unique prompts (1 per player) and add to local list
-        for i in range(players):
-            unique_prompt = self.prompts.pop(i) # Get and then remove prompt from list of prompts
-            prompts.append(unique_prompt)
-
-        prompt_pairs = [] # List of tuple prompt pairs
-        index = -1 # Start index at -1 to access end of list and go forward
-        for _ in range(players):
-            prompt_pair = (prompts[index], prompts[(index+1)])
-            prompt_pairs.append(prompt_pair)
-            index += 1 # Increment index at end
-
-        if shuffle:
-            random.shuffle(prompt_pairs)
-
-        return prompt_pairs
-            
-
-    def deliver_prompts(self, prompt_pairs: tuple):
-        prompt_pairs = prompt_pairs # Deliver 2 prompts per player
-        for i in range(len(self.players)): # TODO: Finish this part and receiving part in javascript
-            emit('new_prompt', {'prompt': self.players[i]['name']}, room=self.players[i]['sid'])
-            emit('new_prompt', {'prompt': self.players[i]['name']}, room=self.players[i]['sid'])
+    def deliver_prompts(self, prompt_pairs: list):
+        print(prompt_pairs)
+        for i in range(len(self.players)): # Send prompts to each player
+            prompts_for_player = prompt_pairs.pop()
+            prompts_for_player = [prompts_for_player[:2], prompts_for_player[2:]]
+            emit('new_prompts', prompts_for_player, room=self.players[i]['sid'])
 
     def receive_answers(self, data):
-        player = self.find_player('sid', request.sid)
-        prompt = data.prompt
-        answer = data.answer
-        pass
+        if self.find_player('sid', request.sid):
+            player = self.find_player('sid', request.sid) # Player giving answer
+            prompts = data.prompts # List of two prompts
+            answers = data.answers # List of two answers
+            pass
 
     def receive_votes(self, data):
-        self.process_votes(self)
-        pass        
-
-    def process_votes(self, data):
-        # Conduct voting for each prompt
-        player = self.find_player('sid', request.sid)
-        vote = data.vote # Can be player name
-        player_voted = self.find_player('name', vote)
-        player_voted['score'] += 50
+        if self.find_player('sid', request.sid):
+            # Conduct voting for each prompt
+            player_making_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
+            vote = data.vote # Can be player name
+            player_voted_for = self.find_player('name', vote) # This is the player who got voted for
+            player_voted_for['score'] += 50
         pass
 
     def show_results(self, round_num):
@@ -147,23 +114,35 @@ class EpigramGame:
         # Logic for the special round
         print("--Special Round--")
         # Choose a special activity
-        activity = random.choice(self.special_activities)
-        activity()
+        random.choice(self.special_activities)()
 
     def acro_lash(self):
         print('Acro-Lash!')
-        emit('special_round', {'acronym': 'ATSI'})
+        self.send_to_all('acro_lash', {'acronym': 'ATSI'})
         pass
 
     def comic_lash(self):
         print('Comic-Lash!')
-        emit('special_round', {'comic': 'comic_location'})
+        self.send_to_all('comic_lash', {'comic': 'comic_location'})
         pass
 
     def word_lash(self):
         print('Word-Lash!')
-        emit('special_round', {'prompt': 'prompt_with_word'})
+        # Get prompt
+        with open('final_round/word_lash/word_lash.txt', 'r') as word_lash:
+            pass
+        # Get word
+        with open('final_round/word_lash/word.txt', 'r') as word:
+            pass
+
+        emit('word_lash', {'prompt': 'prompt_with_word'})
         pass
+
+    def send_to_all(self, event: str, data, to_host=True):
+        for player in self.players:
+            emit(event, data, room=player['sid'])
+        if to_host:
+            emit(emit(event, data, room=self.host_id))
 
     def show_winner(self):
         # Determine and show the game winner
