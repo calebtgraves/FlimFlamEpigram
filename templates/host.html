@@ -75,14 +75,15 @@
             console.log(data.number)
             players_done = false
             let timer = 120
-            console.log(timer)
-            while(timer > 0 && !players_done){
-                setTimeout(()=>{
-                    timer -= 1
-                    console.log(timer)
-                },1000)
-            }
-            socket.emit('answers_done',{'round_num':data.number})
+            console.log(timer,players_done)
+            const countdown = setInterval(()=>{
+                if(timer == 0 || players_done){
+                    clearInterval(countdown)
+                    socket.emit('answers_done',{'round_num':data.number})
+                }
+                timer -= 1
+                console.log(timer)
+            },1000)
         })
 
         // dictionary[prompt][player_name] = {'answer': answer, 'votes': [player objects]} // dictionary structure for reference

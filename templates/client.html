@@ -82,6 +82,8 @@
         socket.on('round',function(data){
             document.getElementById('answering').style.display = 'flex';
             round_num = data.number
+            console.log(myPrompts)
+            console.log(round_num)
             console.log(myPrompts[round_num-1][0])
             document.getElementById('prompt').innerText = myPrompts[round_num-1][0]
         })

@@ -2,7 +2,6 @@ from flask import request
 from flask_socketio import SocketIO, emit
 import os
 import random
-from app import get_letters
 
 class EpigramGame:
     def __init__(self, socketio: SocketIO, players: list, host_sid):
@@ -46,12 +45,13 @@ class EpigramGame:
                     self.crutches.append(crutch.strip())
 
     def run_game(self):
-        self.play_round(1)
-        self.play_round(2)
-        self.play_special_round(3)
-        self.show_winner()
+        self.start(1)
+        # self.play_round(2)
+        # self.play_special_round(3)
+        # self.show_winner()
+        print('Done!')
 
-    def play_round(self, round_num: int):
+    def start(self, round_num: int):
         # Logic for each round
         print(f"Round {round_num}")
         self.send_to_all('round', {'number': round_num})
@@ -121,8 +121,8 @@ class EpigramGame:
         pass
 
     def show_votes(self, round_num):
-        for prompt in self.prompt_answers[round_num]:
-            print()
+        for prompt in self.prompt_answers[round_num].keys():
+            print(prompt)
         pass
 
     def special_receive_answers(self, data):
@@ -173,7 +173,7 @@ class EpigramGame:
 
     def acro_lash(self):
         print('Acro-Lash!')
-        acronym = get_letters()
+        acronym = ''.join(random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ') for _ in range(4))
         self.send_to_all('acro_lash', {'acronym': acronym.upper()})
         pass
 
