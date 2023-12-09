@@ -88,8 +88,9 @@ class EpigramGame:
         return list(myCrutches)
 
     def deliver_prompts(self, prompt_pairs: list):
-        for i, prompt_list in enumerate(prompt_pairs):
-            print(i+1, prompt_list)
+        player_names = [player['player_name'] for player in self.players]
+        for name, prompt_list in zip(player_names, prompt_pairs):
+            print(name, prompt_list)
         print(self.players)
         for i in range(len(self.players)): # Send prompts to each player
             prompts_for_player = prompt_pairs.pop()
