@@ -10,6 +10,7 @@ class EpigramGame:
 
         self.round_num = 0
         self.answers_received = 0
+        self.votes_received = 0
         
         self.players = players # List of player dicts
         #i.e. [..., {'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color}, ...]
@@ -26,13 +27,17 @@ class EpigramGame:
         self.deliver_prompts(self.get_prompts(len(self.players)))
 
         ## Socket Listeners ##
+        # Receive answers from client.html
         self.socketio.on_event('answer', self.receive_answers) # Get prompt answers
         self.socketio.on_event('special_answer', self.special_receive_answers) # Get player special answer
-        self.socketio.on_event('answers_done', self.show_answers) # Show answers when host says time is up
-
+        
+        # Receive votes from client.html
         self.socketio.on_event('vote', self.receive_votes) # Get player votes
         self.socketio.on_event('special_vote', self.special_receive_votes) # Get player special votes
-        self.socketio.on_event('votes_done', self.show_votes) # Show votes when host says time is up
+
+        # Send updated dictionary of prompts, answers, votes to host.html
+        self.socketio.on_event('client_input_done', self.send_results_dict)
+
 
     def load_prompts(self, shuffle=True):
             # Load prompts
@@ -54,7 +59,12 @@ class EpigramGame:
         # self.show_winner()
 
     def play_round(self):
+        # Increment round number
         self.round_num += 1
+        # Clear answer/vote count trackers
+        self.answers_received = 0
+        self.votes_received = 0
+        # Send round event
         print(f"Round {self.round_num}")
         self.send_to_all('round', {'number': self.round_num})
 
@@ -121,6 +131,7 @@ class EpigramGame:
         # Quiplash also awards bonus points for a Quiplash and keeps track of which answers
         # were Quiplashes. We're planning to add this functionality in the future.
         if self.find_player('sid', request.sid):
+            self.votes_received += 1
             # Conduct voting for each prompt
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
             vote = data.vote # Player name
@@ -135,14 +146,10 @@ class EpigramGame:
                 player_voted_for['score'] += 25
         pass
 
-    def show_answers(self):
-        # Have host show player answers
-        emit('answers', self.prompt_answers[self.round_num], room=self.host_sid) # Give dictionary to host to display
-        pass
-
-    def show_votes(self):
-        for prompt in self.prompt_answers[self.round_num].keys():
-            print(prompt)
+    def send_results_dict(self):
+        if self.host_sid == request.sid: # If it is our host sending, then accept
+            # Have host show player answers
+            emit('answers', self.prompt_answers[self.round_num], room=self.host_sid) # Give dictionary to host to display
         pass
 
     def special_receive_answers(self, data):

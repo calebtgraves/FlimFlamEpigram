@@ -82,9 +82,13 @@
             console.log(data.number)
             players_done = false
             let timer = 120
+            const timer_element = document.getElementById('timer')
+            timer_element.display = 'block';
+            timer_element.innerText = timer
             console.log(timer, players_done)
             const countdown = setInterval(()=>{
                 timer -= 1
+                timer_element.innerText = timer
                 console.log(timer)
                 if(timer == 0 || players_done){
                     clearInterval(countdown)
@@ -93,7 +97,7 @@
                             token.classList.remove('grey-out')
                         }
                     })
-                    socket.emit('answers_done', {'round_num': data.number})
+                    socket.emit('client_input_done')
                 }
             },1000)
         })
@@ -120,6 +124,7 @@
         </div>
         <div id='player-list'></div>
         <div id='instructions' style='display:none'>These are the instructions</div>
+        <p id="timer"></p>
     </main>
     <!-- Additional elements for hosting the game -->
 </body>
