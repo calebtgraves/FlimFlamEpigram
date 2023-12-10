@@ -67,6 +67,7 @@ class EpigramGame:
         self.round_num += 1
         if self.round_num == 3:
             emit('end', room=self.host_sid)
+            return
         # Clear answer/vote count trackers
         self.answers_received = 0 # Start answers fresh
         self.votes_received = 0 # Start votes fresh
