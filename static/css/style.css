@@ -379,6 +379,7 @@ button:active{
     text-overflow: ellipsis;
     word-wrap: break-word;
     position:relative;
+    text-align:Center;
 }
 .response-author {
     position: absolute;

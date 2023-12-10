@@ -235,7 +235,7 @@ class EpigramGame:
 
         emit('leaderboard', combined_dict, room=self.host_sid)
 
-        print('Scores:')
+        print(f'Round {self.round_num} Scores:')
         for i, (name, score) in enumerate(zip(sorted_names, sorted_scores)):
             print(f'{i+1}. {name} -- {score}')
         pass
