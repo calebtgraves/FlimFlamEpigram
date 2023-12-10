@@ -269,9 +269,9 @@
             const leaderboard_timeout = setInterval(()=>{
                 timer -= 1
                 if(timer == 0){
-                    socket.emit('new_round')
                     document.getElementById('leaderboard').innerHTML = '';
                     document.getElementById('leaderboard').style.display = 'none';
+                    socket.emit('next_round')
                 }
             },1000)
         })

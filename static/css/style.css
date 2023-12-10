@@ -406,6 +406,7 @@ button:active{
 }
 .response-votes{
     display:none;
+    margin-bottom:1em;
 }
 #response1-votes{
     align-items: flex-start;
@@ -418,4 +419,5 @@ button:active{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width:100%;
 }
