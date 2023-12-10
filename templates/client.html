@@ -114,26 +114,30 @@
             console.log(round_num)
             console.log(myPrompts[round_num-1][0])
             document.getElementById('prompt').innerText = myPrompts[round_num-1][0]
-            document.getElementById('prompt-container').innerText = myPrompts[round_num-1][1]
+            document.getElementById('prompt-container').innerText = myPrompts[round_num-1][0]
         })
 
         socket.on('challenge',function(data){
             challenge_responses = []
+            console.log(data)
             for(var player in data.responses){
-                challenge_responses.push({'name':player,'prompt':data.prompt,'text':data.responses[player]})
+                challenge_responses.push({'name':player,'prompt':data.prompt,'text':data['responses'][player]})
             }
-            document.getElementById('prompt').innerText = data.prompt;
-            document.getElementById('prompt-container').innerText = data.prompt;
+            document.getElementById('prompt').innerText = `Vote:\n${data.prompt}`;
+            document.getElementById('prompt-container').innerText = `Vote:\n${data.prompt}`;
             document.getElementById('interactions').style.display = 'flex';
             document.getElementById('answering').style.display = 'none';
             document.getElementById('voting').style.display = 'flex';
-            document.getElementById('vote1').innerText = data.responses.text;
-            document.getElementById('vote2').innerText = data.responses.text;
+            document.getElementById('vote1').innerText = challenge_responses[0]['text'];
+            document.getElementById('vote2').innerText = challenge_responses[1]['text'];
         })
         
         socket.on('challenge_wait',function(){
             document.getElementById('prompt').innerText = "You responded to this prompt. Please wait!";
             document.getElementById('prompt-container').innerText = "You responded to this prompt. Please wait!";
+            document.getElementById('interactions').style.display = 'flex';
+            document.getElementById('answering').style.display = 'none';
+            document.getElementById('voting').style.display = 'none';
         })
 
         // Additional JavaScript for player interactions...

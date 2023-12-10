@@ -131,7 +131,7 @@ class EpigramGame:
 
     def send_clients_challenge(self, data):
         if self.host_sid == request.sid:
-            prompt_to_match = data.prompt # prompt_to_match is a string
+            prompt_to_match = data['prompt'] # prompt_to_match is a string
 
             players_involved_answers = {}
 
@@ -159,9 +159,9 @@ class EpigramGame:
             self.votes_received += 1
             # Conduct voting for each prompt
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
-            vote = data.name # Player name
+            vote = data['name'] # Player name
             print(f'{player_sending_vote["name"]} voted for {vote}')
-            prompt = data.prompt # Prompt being voted on
+            prompt = data['prompt'] # Prompt being voted on
             player_voted_for = self.find_player('name', vote) # This is the player who got voted for
             player_voted_for_name = player_voted_for['name']
             

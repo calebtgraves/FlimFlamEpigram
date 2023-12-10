@@ -22,16 +22,16 @@
             </div>
             <p id="prompt">
             </p>
-            <div id="response1">
+            <div id="response1" class="response-container">
                 <div id="response1-votes" class="response-votes"></div>
-                <div id="response1-card" calss="response-card">
+                <div id="response1-card" class="response-card">
                     <p id="response1-text" class="response-text"></p>
                     <div id="response1-author" class="response-answer"></div>
                 </div>
             </div>
-            <div id="response2">
+            <div id="response2" class="response-container">
                 <div id="response2-votes" class="response-votes"></div>
-                <div id="response2-card" calss="response-card">
+                <div id="response2-card" class="response-card">
                     <p id="response2-text" class="response-text"></p>
                     <div id="response2-author" class="response-answer"></div>
                 </div>
@@ -125,11 +125,9 @@
             let timer = 120
             timer_element.style.display = 'block';
             timer_element.innerText = timer
-            console.log(timer, players_done)
             const countdown = setInterval(()=>{
                 timer -= 1
                 timer_element.innerText = timer
-                console.log(timer)
                 if(timer == 0 || players_done){
                     clearInterval(countdown)
                     Array.from(document.getElementsByClassName('player-token')).forEach((token)=>{
@@ -151,21 +149,29 @@
 
         socket.on('answers',function(data){
             //data in this structure: dictionary = {'prompt': {'name': {'answer': answer, 'crutch': crutch, 'votes': [player objects]}}}
-            console.log(data);
             document.getElementById('player-list').style.display = 'none';
             document.getElementById('challenge').style.display = 'flex';
             let timer = 20; // ERROR: Counts down by 4, then three, then two, then one
             timer_element.innerText = timer;
+            let currentPrompts = []
             for(var prompt in data){
-                document.getElementById('prompt').innerText = prompt
-                document.getElementById('prompt-container').innerText = prompt
+                currentPrompts.push(prompt)
+            }
+            running = false;
+            let i = 0
+            while(i < currentPrompts.length && !running){
+                running = true;
+                prompt = data[currentPrompts[i]]
+                document.getElementById('prompt').innerText = currentPrompts[i]
+                document.getElementById('prompt-container').innerText = currentPrompts[i]
                 let theseResponses = []
                 for(var playerName in prompt){
                     theseResponses.push(prompt[playerName])
                 }
-                document.getElementById('response1-text').innerText = theseResponses[0]
-                document.getElementById('response2-text').innerText = theseResponses[1]
-                socket.emit('votes_needed', {'prompt': prompt}) // Once competing responses are displayed, start timer and ask for player votes
+                console.log(theseResponses)
+                document.getElementById('response1-text').innerText = theseResponses[0]['answer']
+                document.getElementById('response2-text').innerText = theseResponses[1]['answer']
+                socket.emit('votes_needed', {'prompt': currentPrompts[i]}) // Once competing responses are displayed, start timer and ask for player votes
                 const countdown = setInterval(()=>{
                     timer -= 1;
                     timer_element.innerText = timer;
@@ -179,6 +185,8 @@
                                 clearInterval(showVotesCountdown)
                                 timer = 20
                                 players_done = false
+                                i++
+                                running=false;
                             }
                         },1000)
                     }
