@@ -158,9 +158,12 @@
                 currentPrompts.push(prompt)
             }
             running = false;
-            let i = 0
+            let i = 1
             function doVoting(){
-                document.getElementById('response1-votes').innerHTML = ''
+                document.getElementById('response1-votes').innerHTML = '';
+                document.getElementById('response1-votes').style.display='none';
+                document.getElementById('response2-votes').innerHTML = '';
+                document.getElementById('response2-votes').style.display='none';
                 document.getElementById('response1-author').innerText = ''
                 document.getElementById('response2-author').innerText = ''
                 console.log(currentPrompts.length, i)

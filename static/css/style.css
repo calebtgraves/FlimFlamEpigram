@@ -368,7 +368,7 @@ button:active{
     background-color: white;
     height: 250px;
     width: 400px;
-    margin: 2rem;
+    margin: 0 2rem;
     border: 4px solid black;
     border-radius: 1em;
     display: flex;
@@ -379,12 +379,6 @@ button:active{
     text-overflow: ellipsis;
     word-wrap: break-word;
     position:relative;
-}
-#response1-card{
-    margin-left:0;
-}
-#response2-card{
-    margin-right:0;
 }
 .response-author {
     position: absolute;
@@ -401,6 +395,7 @@ button:active{
 }
 .response-container{
     display:flex;
+    flex-direction: column;
 }
 #response1{
     animation:rotate 8s ease-in-out infinite;
@@ -410,7 +405,6 @@ button:active{
 }
 .response-votes{
     display:none;
-    flex-direction: column;
 }
 #response1-votes{
     align-items: flex-start;
