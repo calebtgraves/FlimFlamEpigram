@@ -152,7 +152,7 @@
     <main id="client-main">
         <div id="join-game-form">
             <label for="playerName">Enter your name: <span id="name-taken">Name Already Taken</span></label>
-            <input type="text" id="playerName" autocomplete="off">
+            <input type="text" id="playerName" autocomplete="off" maxlength="10">
             <label for="playerName">Game Id: <span id="invalid-code">Invalid Code</span></label>
             <input type="text" id="gameID" autocomplete="off"/>
             <button onclick="sendName()">Join Game</button>
