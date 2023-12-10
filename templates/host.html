@@ -160,6 +160,8 @@
             running = false;
             let i = 0
             function doVoting(){
+                document.getElementById('response1-author').innerText = ''
+                document.getElementById('response2-author').innerText = ''
                 console.log(currentPrompts.length, i)
                 prompt = data[currentPrompts[i]]
                 document.getElementById('prompt').innerText = currentPrompts[i]
@@ -222,7 +224,7 @@
             voteToken.style.color = player_colors[data.submitter]
             let first_letter = document.createElement('p')
             first_letter.innerText = data.submitter[0]
-            voteToken.appendChild()
+            voteToken.appendChild(first_letter)
             if(data.response == document.getElementById('response1-text').innerText){
                 document.getElementById('response1-votes').appendChild(voteToken)
             }else{
