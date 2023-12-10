@@ -156,23 +156,24 @@ main{
     text-align: center;
 }
 .vote-token{
-    height:1.5em;
-    width:1.5em;
+    height:3.5rem;
+    width:3.5rem;
     border: 2px solid black;
     border-radius:50%;
     display:flex;
     align-items: center;
     justify-content: center;
     margin:.7em;
-    font-size: .3em;
+    font-size: 1em;
     font-family: "omnes-cyrillic-semicondensed", sans-serif;
-    font-weight: 300;
+    font-weight: 700;
     font-style: normal;
     flex-shrink:0;
 }
 .vote-token p{
     filter: brightness(50%);
     width: 100%;
+    max-width:100%;
     word-wrap: break-word;
     text-align: center;
 }
@@ -379,6 +380,12 @@ button:active{
     word-wrap: break-word;
     position:relative;
 }
+#response1-card{
+    margin-left:0;
+}
+#response2-card{
+    margin-right:0;
+}
 .response-author {
     position: absolute;
     bottom: 0;
@@ -403,6 +410,7 @@ button:active{
 }
 .response-votes{
     display:none;
+    flex-direction: column;
 }
 #response1-votes{
     align-items: flex-start;

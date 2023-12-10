@@ -37,7 +37,8 @@ class EpigramGame:
 
         # Receive requests from host.html
         self.socketio.on_event('client_input_done', self.send_results_dict) # Send updated dictionary of prompts, answers, votes to host.html
-        self.socketio.on_event('votes_needed', self.send_clients_challenge)
+        self.socketio.on_event('votes_needed', self.send_clients_challenge) # Host asks for votes from clients
+        self.socketio.on_event('next_round', self.play_round) # Host signals for a new round
 
     def load_prompts(self, shuffle=True):
             # Load prompts
@@ -62,6 +63,8 @@ class EpigramGame:
     def play_round(self):
         # Increment round number
         self.round_num += 1
+        if self.round_num == 3:
+            emit('end', room=self.host_sid)
         # Clear answer/vote count trackers
         self.answers_received = 0
         self.votes_received = 0
@@ -180,7 +183,7 @@ class EpigramGame:
 
             if self.votes_received == (len(self.players) - 2):
                 emit('players_done', room=self.host_sid)
-                print(f'All {len(self.players)} players have submitted their votes.')
+                print(f'All {len(self.players)-2} players have submitted their votes.')
         pass
 
     def send_results_dict(self):

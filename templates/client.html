@@ -28,7 +28,9 @@
 
         function sendAnswers(answers, prompts) {
             socket.emit('answer', {'answers': answers,'prompts': prompts});
-            document.getElementById('interactions').style.display = 'none';
+            document.getElementById('answering').style.display = 'none';
+            document.getElementById('prompt').innerText = 'Waiting for other players...'
+            document.getElementById('prompt-container').innerText = 'Waiting for other players...'
         }
 
         function submitAnswer(response=document.getElementById('answer-prompt').value, crutch=false){
