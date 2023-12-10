@@ -151,7 +151,7 @@
             //data in this structure: dictionary = {'prompt': {'name': {'answer': answer, 'crutch': crutch, 'votes': [player objects]}}}
             document.getElementById('player-list').style.display = 'none';
             document.getElementById('challenge').style.display = 'flex';
-            let timer = 20; // ERROR: Counts down by 4, then three, then two, then one
+            let timer = 20;
             timer_element.innerText = timer;
             let currentPrompts = []
             for(var prompt in data){
@@ -159,53 +159,57 @@
             }
             running = false;
             let i = 0
-            while(i < currentPrompts.length){
-                if(!running){
-                    running = true;
-                    console.log(currentPrompts.length, i)
-                    prompt = data[currentPrompts[i]]
-                    document.getElementById('prompt').innerText = currentPrompts[i]
-                    document.getElementById('prompt-container').innerText = currentPrompts[i]
-                    let theseResponses = []
-                    let authors = []
-                    for(var playerName in prompt){
-                        theseResponses.push(prompt[playerName])
-                        authors.push(playerName)
-                    }
-                    console.log(theseResponses)
-                    document.getElementById('response1-text').innerText = theseResponses[0]['answer']
-                    document.getElementById('response2-text').innerText = theseResponses[1]['answer']
-                    socket.emit('votes_needed', {'prompt': currentPrompts[i]}) // Once competing responses are displayed, start timer and ask for player votes
-                    const countdown = setInterval(()=>{
-                        timer -= 1;
-                        timer_element.innerText = timer;
-                        if(timer == 0 || players_done){
-                            clearInterval(countdown)
-                            timer = 5
-                            console.log(player_colors)
-                            document.getElementById('response1-author').style.color = player_colors[authors[0]]
-                            document.getElementById('response2-author').style.color = player_colors[authors[1]]
-                            document.getElementById('response1-author').innerText = authors[0]
-                            document.getElementById('response2-author').innerText = authors[1]
-                            Array.from(document.getElementsByClassName('response-votes')).forEach((element)=>{
-                                element.style.display = 'flex';
-                            })
-                            timer_element.innerText = ''
-                            const showVotesCountdown = setInterval(()=>{
-                                timer -= 1;
-                                if(timer == 0){
-                                    clearInterval(showVotesCountdown)
-                                    timer = 20
-                                    players_done = false
+            function doVoting(){
+                console.log(currentPrompts.length, i)
+                prompt = data[currentPrompts[i]]
+                document.getElementById('prompt').innerText = currentPrompts[i]
+                document.getElementById('prompt-container').innerText = currentPrompts[i]
+                let theseResponses = []
+                let authors = []
+                for(var playerName in prompt){
+                    theseResponses.push(prompt[playerName])
+                    authors.push(playerName)
+                }
+                console.log(theseResponses)
+                document.getElementById('response1-text').innerText = theseResponses[0]['answer']
+                document.getElementById('response2-text').innerText = theseResponses[1]['answer']
+                socket.emit('votes_needed', {'prompt': currentPrompts[i]}) // Once competing responses are displayed, start timer and ask for player votes
+                const countdown = setInterval(()=>{
+                    timer -= 1;
+                    timer_element.innerText = timer;
+                    if(timer == 0 || players_done){
+                        clearInterval(countdown)
+                        timer = 5
+                        console.log(player_colors)
+                        document.getElementById('response1-author').style.color = player_colors[authors[0]]
+                        document.getElementById('response2-author').style.color = player_colors[authors[1]]
+                        document.getElementById('response1-author').innerText = authors[0]
+                        document.getElementById('response2-author').innerText = authors[1]
+                        Array.from(document.getElementsByClassName('response-votes')).forEach((element)=>{
+                            element.style.display = 'flex';
+                        })
+                        timer_element.innerText = ''
+                        const showVotesCountdown = setInterval(()=>{
+                            timer -= 1;
+                            if(timer == 0){
+                                clearInterval(showVotesCountdown)
+                                timer = 20
+                                players_done = false
+                                if(i < currentPrompts.length){
                                     i++
-                                    running=false;
+                                    console.log("I'm calling myself now!", i)
+                                    doVoting()
                                 }
-                            },1000)
-                        }
-                    },1000)
-                }  
+                                else{
+                                    socket.emit('next_round')
+                                }
+                                running=false;
+                            }
+                        },1000)
+                    }
+                },1000)
             }
-            socket.emit('next_round')
+            doVoting()
         })
 
         socket.on('votes',function(data){
