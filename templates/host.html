@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="text/javascript" defer>
         var socket = io();
+        const timer_element = document.getElementById('timer')
+        let player_colors = {}
         
         function requestGameId(){
             socket.emit('game_id_request')
@@ -65,7 +67,6 @@
             sleep(wait) // wait for a bit
         })
 
-
         let players_done
         socket.on('players_done',function(){
             players_done = true
@@ -83,7 +84,6 @@
             console.log(data.number)
             players_done = false
             let timer = 120
-            const timer_element = document.getElementById('timer')
             timer_element.style.display = 'block';
             timer_element.innerText = timer
             console.log(timer, players_done)
@@ -99,6 +99,7 @@
                         }
                     })
                     socket.emit('client_input_done')
+                    players_done = false
                 }
             },1000)
         })
@@ -110,14 +111,39 @@
         // dictionary[prompt][player_name] = {'answer': answer, 'crutch': crutch, 'votes': [player objects]} // dictionary structure for reference
 
         socket.on('answers',function(data){
+            //data in this structure: dictionary = {'prompt': {'name': {'answer': answer, 'crutch': crutch, 'votes': [player objects]}}}
             console.log(data);
             document.getElementById('player-list').style.display = 'none';
-
-            // Placeholder logic for sending prompt info to voters
-            let prompt_obj1 = {'player1': 'prompt1'}
-            let prompt_obj2 = {'prompt2': 'prompt2'}
-
-            socket.emit('votes_needed', {'prompts': [prompt_obj1, prompt_obj2]}) // Once competing prompts are displayed, start timer and ask for player votes
+            document.getElementById('challenge').style.display = 'flex';
+            let timer = 20;
+            for(var prompt in data){
+                document.getElementById('prompt').innerText = prompt
+                document.getElementById('prompt-container').innerText = prompt
+                let theseResponses = []
+                for(var playerName in prompt){
+                    currentPrompts.push(prompt[playerName])
+                }
+                document.getElementById('response1-text').innerText = theseResponses[0]
+                document.getElementById('response2-text').innerText = theseResponses[1]
+                socket.emit('votes_needed', {'prompt': prompt}) // Once competing responses are displayed, start timer and ask for player votes
+                const countdown = setInterval(()=>{
+                    timer -= 1;
+                    timer_element.innerText = timer;
+                    if(timer == 0 || players_done){
+                        clearInterval(countdown)
+                        timer = 5
+                        const showVotesCountdown = setInterval(()=>{
+                            timer -= 1;
+                            timer_element.innerText = timer
+                            if(timer == 0){
+                                clearInterval(showVotesCountdown)
+                                timer = 20
+                                players_done = false
+                            }
+                        },1000)
+                    }
+                },1000)
+            }
         })
 
         // Additional JavaScript for managing game state...
@@ -131,10 +157,27 @@
             <p id="game-id"></p>
         </div>
         <div id='player-list'></div>
-        <div id='instructions' style='display:none'>These are the instructions</div>
         <p id="timer"></p>
         <div id="challenge">
-            <div id="promp"        </div>
+            <div id="prompt-container">
+            </div>
+            <p id="prompt">
+            </p>
+            <div id="response1">
+                <div id="response1-votes" class="response-votes"></div>
+                <div id="response1-card" calss="response-card">
+                    <p id="response1-text" class="response-text"></p>
+                    <div id="response1-author" class="response-answer"></div>
+                </div>
+            </div>
+            <div id="response2">
+                <div id="response2-votes" class="response-votes"></div>
+                <div id="response2-card" calss="response-card">
+                    <p id="response2-text" class="response-text"></p>
+                    <div id="response2-author" class="response-answer"></div>
+                </div>
+            </div>
+        </div>
     </main>
     <!-- Additional elements for hosting the game -->
 </body>

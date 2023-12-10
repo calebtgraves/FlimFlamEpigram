@@ -13,6 +13,8 @@
         var myCrutches
         var round_num = 0
         var myAnswers = []
+        var challenge_responses = []
+        var player_colors = {}
 
         function sendName() {
             var playerName = document.getElementById('playerName').value;
@@ -26,7 +28,7 @@
 
         function sendAnswers(answers, prompts) {
             socket.emit('answer', {'answers': answers,'prompts': prompts});
-            document.getElementById('answering').style.display = 'none';
+            document.getElementById('interactions').style.display = 'none';
         }
 
         function submitAnswer(response=document.getElementById('answer-prompt').value, crutch=false){
@@ -43,6 +45,10 @@
         }
         function useCrutch(){
             submitAnswer(myCrutches.pop(),true) // using submitAnswer but removing and sending a crutch, and submitting as a crutch.
+        }
+
+        function sendVote(playerChoice){
+            socket.emit('vote',challenge_responses[playerChoice])
         }
 
         socket.on('game_started',function(){
@@ -93,14 +99,41 @@
             console.log(myCrutches)
         })
 
+        socket.on('all_players',function(data){
+            for(var player in data){
+                player_colors[player['name']] = player['color']
+            }
+        })
+
         socket.on('round',function(data){
+            document.getElementById('interactions').style.display = 'flex';
             document.getElementById('answering').style.display = 'flex';
+            document.getElementById('voting').style.display = 'none';
             round_num = data.number
             console.log(myPrompts)
             console.log(round_num)
             console.log(myPrompts[round_num-1][0])
             document.getElementById('prompt').innerText = myPrompts[round_num-1][0]
             document.getElementById('prompt-container').innerText = myPrompts[round_num-1][1]
+        })
+
+        socket.on('challenge',function(data){
+            challenge_responses = []
+            for(var player in data.responses){
+                challenge_responses.push({'name':player,'prompt':data.prompt,'text':data.responses[player]})
+            }
+            document.getElementById('prompt').innerText = data.prompt;
+            document.getElementById('prompt-container').innerText = data.prompt;
+            document.getElementById('interactions').style.display = 'flex';
+            document.getElementById('answering').style.display = 'none';
+            document.getElementById('voting').style.display = 'flex';
+            document.getElementById('vote1').innerText = data.responses.text;
+            document.getElementById('vote2').innerText = data.responses.text;
+        })
+        
+        socket.on('challenge_wait',function(){
+            document.getElementById('prompt').innerText = "You responded to this prompt. Please wait!";
+            document.getElementById('prompt-container').innerText = "You responded to this prompt. Please wait!";
         })
 
         // Additional JavaScript for player interactions...
@@ -119,15 +152,21 @@
             <h1 id="welcome-message"></h1>
             <button id='start-button' onclick="startGame()" style="display:none">Start Game</button>
         </div>
-        <div id="answering">
+        <div id="interactions">
             <div id="prompt-container">
                 prompt
             </div>
             <p id="prompt"></p>
-            <input id="answer-prompt" placeholder="Your response..."/>
-            <div id="answering-buttons">
-                <button id="prompt-continue" onclick="submitAnswer()">continue</button>
-                <button id="crutch-button" onclick="useCrutch()">Use a crutch!</button>
+            <div id="answering">
+                <input id="answer-prompt" placeholder="Your response..."/>
+                <div id="answering-buttons">
+                    <button id="prompt-continue" onclick="submitAnswer()">continue</button>
+                    <button id="crutch-button" onclick="useCrutch()">Use a crutch!</button>
+                </div>
+            </div>
+            <div id="voting">
+                <button id="vote1" onclick="sendVote(0)"></button>
+                <button id="vote2" onclick="sendVote(1)"></button>
             </div>
         </div> 
     </main>

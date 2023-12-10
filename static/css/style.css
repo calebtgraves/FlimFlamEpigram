@@ -282,3 +282,6 @@ button:active{
     height:100%;
     width:100%;
 }
+.response-text{
+    font-size:1.3em;
+}

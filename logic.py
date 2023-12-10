@@ -53,6 +53,7 @@ class EpigramGame:
                     self.crutches.append(crutch.strip())
 
     def run_game(self):
+        self.send_to_all('all_players',self.players)
         self.play_round() # Start the Python-Javascript back-and-forth
         # self.play_round(2)
         # self.play_special_round(3)
@@ -130,8 +131,25 @@ class EpigramGame:
 
     def send_clients_challenge(self, data):
         if self.host_sid == request.sid:
-            event = data.prompts
-            self.send_to_all(event, data, to_host=False)
+            prompt_to_match = data.prompt # prompt_to_match is a string
+
+            players_involved_answers = {}
+
+            for prompt_key in self.prompt_answers[self.round_num]:
+                if prompt_key == prompt_to_match:
+                    prompt_data = self.prompt_answers[self.round_num][prompt_key]
+                    for player_name in prompt_data:
+                        answer = prompt_data[player_name]['answer']
+                        players_involved_answers[player_name] = answer
+
+            for player in self.players:
+                if player['name'] not in players_involved_answers.keys():
+                    # responses is a dictionary -> {player_name1: answer, player_name2: answer}
+                    emit('challenge', {'prompt': prompt_to_match, 'responses': players_involved_answers}, room=player['sid']) 
+                    print(f'{player["name"]} is voting...')
+                else:
+                    emit('challenge_wait', room=player['sid'])
+                    print(f'{player["name"]} is waiting...')
 
     def receive_votes(self, data):
         # TODO: Quiplash awards points based on the percent of players who chose an answer.
@@ -141,7 +159,8 @@ class EpigramGame:
             self.votes_received += 1
             # Conduct voting for each prompt
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
-            vote = data.vote # Player name
+            vote = data.name # Player name
+            print(f'{player_sending_vote["name"]} voted for {vote}')
             prompt = data.prompt # Prompt being voted on
             player_voted_for = self.find_player('name', vote) # This is the player who got voted for
             player_voted_for_name = player_voted_for['name']
