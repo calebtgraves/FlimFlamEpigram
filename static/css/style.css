@@ -155,6 +155,27 @@ main{
     word-wrap: break-word;
     text-align: center;
 }
+.vote-token{
+    height:1.5em;
+    width:1.5em;
+    border: 2px solid black;
+    border-radius:50%;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin:.7em;
+    font-size: .3em;
+    font-family: "omnes-cyrillic-semicondensed", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+    flex-shrink:0;
+}
+.vote-token p{
+    filter: brightness(50%);
+    width: 100%;
+    word-wrap: break-word;
+    text-align: center;
+}
 #vip-player{
     border-color:gold;
     background-image:url('../images/VipStar.svg');
@@ -379,4 +400,13 @@ button:active{
 }
 #response2{
     animation:rotateBack 8s ease-in-out infinite;
+}
+.response-votes{
+    display:none;
+}
+#response1-votes{
+    align-items: flex-start;
+}
+#response2-votes{
+    align-items: flex-start;
 }

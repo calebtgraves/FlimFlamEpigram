@@ -185,6 +185,9 @@
                         document.getElementById('response2-author').style.color = player_colors[authors[1]]
                         document.getElementById('response1-author').innerText = authors[0]
                         document.getElementById('response2-author').innerText = authors[1]
+                        Array.from(document.getElementsByClassName('response-votes')).forEach((element)=>{
+                            element.style.display = 'flex';
+                        })
                         timer_element.innerText = ''
                         const showVotesCountdown = setInterval(()=>{
                             timer -= 1;
@@ -205,6 +208,15 @@
             data.winner
             data.submitter
             data.response
+            let voteToken = document.createElement('div')
+            voteToken.classList.add('vote-token')
+            voteToken.style.backgroundColor = player_colors[data.submitter]
+            voteToken.style.color = player_colors[data.submitter]
+            if(data.response == document.getElementById('response1-text').innerText){
+                document.getElementById('response1-votes').appendChild(voteToken)
+            }else{
+                document.getElementById('response2-votes').appendChild(voteToken)
+            }
         })
 
         // Additional JavaScript for managing game state...
