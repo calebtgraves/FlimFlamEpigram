@@ -53,7 +53,7 @@ class EpigramGame:
                     self.crutches.append(crutch.strip())
 
     def run_game(self):
-        self.send_to_all('all_players',self.players)
+        self.send_to_all('all_players', self.players)
         self.play_round() # Start the Python-Javascript back-and-forth
         # self.play_round(2)
         # self.play_special_round(3)

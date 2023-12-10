@@ -69,15 +69,15 @@ def handle_player_registration(data):
     player_name = data['name']
     game_id = data['id'].upper()
     session_id = request.sid
-    for player in connected_players[game_id]:
-        if player["name"].strip() == data["name"].strip():
-            emit('name_taken',room=session_id)
-            return
     if game_id not in active_codes:
         emit('invalid_code',room=session_id)
         print(f'Game code "{game_id}" does not exist.')
         return
     if game_id in connected_players:
+        for player in connected_players[game_id]:
+            if player["name"].strip() == data["name"].strip():
+                emit('name_taken', room=session_id)
+                return
         if len(connected_players[game_id]) < MAX_PLAYERS:
             player_color = colors_available[game_id].pop() #Assign a color to a player whilst removing it from the list so no other players can have it.
             connected_players[game_id].append({'name': player_name, 'vip': False, 'sid': session_id, 'score': 0, 'color':player_color})

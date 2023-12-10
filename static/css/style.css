@@ -227,11 +227,6 @@ button:active{
 }
 #answering{
     display:none;
-    height:100%;
-    padding:10px;
-    flex-direction:column;
-    justify-content: center;
-    align-items: center;
 }
 #answering-buttons{
     display:flex;
@@ -284,4 +279,15 @@ button:active{
 }
 .response-text{
     font-size:1.3em;
+}
+#interactions{
+    display: none;
+    height:100%;
+    padding:10px;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+}
+#voting{
+    display: none;
 }

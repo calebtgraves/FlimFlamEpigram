@@ -7,10 +7,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/FlimFlamEpigram.svg') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main id="host-main">
+        <div id="host-main-logo"></div>
+        <div id="code-container">
+            <p>Game Code:</p>
+            <p id="game-id"></p>
+        </div>
+        <div id='player-list'></div>
+        <p id="timer"></p>
+        <div id="challenge">
+            <div id="prompt-container">
+            </div>
+            <p id="prompt">
+            </p>
+            <div id="response1">
+                <div id="response1-votes" class="response-votes"></div>
+                <div id="response1-card" calss="response-card">
+                    <p id="response1-text" class="response-text"></p>
+                    <div id="response1-author" class="response-answer"></div>
+                </div>
+            </div>
+            <div id="response2">
+                <div id="response2-votes" class="response-votes"></div>
+                <div id="response2-card" calss="response-card">
+                    <p id="response2-text" class="response-text"></p>
+                    <div id="response2-author" class="response-answer"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Additional elements for hosting the game -->
     <script type="text/javascript" defer>
         var socket = io();
-        const timer_element = document.getElementById('timer')
         let player_colors = {}
+        const timer_element = document.getElementById('timer');
         
         function requestGameId(){
             socket.emit('game_id_request')
@@ -32,7 +64,7 @@
         })
 
         socket.on('player_disconnected',function(data){
-            Array.from(document.getElementsByClassName(`TOKEN-${data}`))[0].remove()
+            Array.from(document.getElementsByClassName(`TOKEN-${data.split(' ').join('-')}`))[0].remove()
         })
 
         socket.on('last_player_disconnected', function(){
@@ -46,7 +78,8 @@
             playerName.style.color=data.color;
             newPlayer.appendChild(playerName);
             newPlayer.classList.add('player-token');
-            newPlayer.classList.add(`TOKEN-${data.name}`);
+
+            newPlayer.classList.add(`TOKEN-${data.name.split(' ').join('-')}`);
             if(data.vip){
                 newPlayer.id = "vip-player"
             }
@@ -65,6 +98,12 @@
             console.log(`Listening to instructions for ${wait} seconds...`);
             // TODO: Some kind of waiting logic 
             sleep(wait) // wait for a bit
+        })
+
+        socket.on('all_players',function(data){
+            for(var player in data){
+                player_colors[player['name']] = player['color']
+            }
         })
 
         let players_done
@@ -105,7 +144,7 @@
         })
 
         socket.on('player_answer',function(data){
-            Array.from(document.getElementsByClassName(`TOKEN-${data.name}`))[0].classList.remove('grey-out');
+            Array.from(document.getElementsByClassName(`TOKEN-${data.name.split(' ').join('-')}`))[0].classList.remove('grey-out');
         })
 
         // dictionary[prompt][player_name] = {'answer': answer, 'crutch': crutch, 'votes': [player objects]} // dictionary structure for reference
@@ -115,13 +154,14 @@
             console.log(data);
             document.getElementById('player-list').style.display = 'none';
             document.getElementById('challenge').style.display = 'flex';
-            let timer = 20;
+            let timer = 20; // ERROR: Counts down by 4, then three, then two, then one
+            timer_element.innerText = timer;
             for(var prompt in data){
                 document.getElementById('prompt').innerText = prompt
                 document.getElementById('prompt-container').innerText = prompt
                 let theseResponses = []
                 for(var playerName in prompt){
-                    currentPrompts.push(prompt[playerName])
+                    theseResponses.push(prompt[playerName])
                 }
                 document.getElementById('response1-text').innerText = theseResponses[0]
                 document.getElementById('response2-text').innerText = theseResponses[1]
@@ -148,37 +188,5 @@
 
         // Additional JavaScript for managing game state...
     </script>
-</head>
-<body>
-    <main id="host-main">
-        <div id="host-main-logo"></div>
-        <div id="code-container">
-            <p>Game Code:</p>
-            <p id="game-id"></p>
-        </div>
-        <div id='player-list'></div>
-        <p id="timer"></p>
-        <div id="challenge">
-            <div id="prompt-container">
-            </div>
-            <p id="prompt">
-            </p>
-            <div id="response1">
-                <div id="response1-votes" class="response-votes"></div>
-                <div id="response1-card" calss="response-card">
-                    <p id="response1-text" class="response-text"></p>
-                    <div id="response1-author" class="response-answer"></div>
-                </div>
-            </div>
-            <div id="response2">
-                <div id="response2-votes" class="response-votes"></div>
-                <div id="response2-card" calss="response-card">
-                    <p id="response2-text" class="response-text"></p>
-                    <div id="response2-author" class="response-answer"></div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!-- Additional elements for hosting the game -->
 </body>
 </html>
