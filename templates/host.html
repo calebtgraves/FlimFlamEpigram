@@ -251,6 +251,7 @@
             for(var name in data){
                 let slot = document.createElement('div')
                 let slotToken = document.createElement('div')
+                slot.classList.add('leaderboard-slot')
                 slotToken.classList.add('player-token');
                 slotToken.style.backgroundColor = player_colors[name];
                 slotToken.style.color = player_colors[name];

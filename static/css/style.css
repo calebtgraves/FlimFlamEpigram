@@ -379,6 +379,7 @@ button:active{
     text-overflow: ellipsis;
     word-wrap: break-word;
     position:relative;
+    z-index:0;
     text-align:Center;
 }
 .response-author {
@@ -407,6 +408,8 @@ button:active{
 .response-votes{
     display:none;
     margin-bottom:1em;
+    position:relative;
+    z-index:1;
 }
 #response1-votes{
     align-items: flex-start;
@@ -420,4 +423,13 @@ button:active{
     align-items: center;
     justify-content: center;
     width:100%;
+}
+.leaderboard-slot{
+    width:100%;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+.leaderboard-slot h1{
+    margin-left:1em;
 }
