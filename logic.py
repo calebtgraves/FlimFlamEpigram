@@ -237,7 +237,7 @@ class EpigramGame:
 
         print('Scores:')
         for i, (name, score) in enumerate(zip(sorted_names, sorted_scores)):
-            print(f'{i}. {name} -- {score}')
+            print(f'{i+1}. {name} -- {score}')
         pass
 
     def play_special_round(self): # Seems silly as round_num will always be 3, but this helps with self.prompt_answers
