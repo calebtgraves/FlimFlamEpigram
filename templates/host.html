@@ -185,9 +185,9 @@
                         document.getElementById('response2-author').style.color = player_colors[authors[1]]
                         document.getElementById('response1-author').innerText = authors[0]
                         document.getElementById('response2-author').innerText = authors[1]
+                        timer_element.innerText = ''
                         const showVotesCountdown = setInterval(()=>{
                             timer -= 1;
-                            timer_element.innerText = timer
                             if(timer == 0){
                                 clearInterval(showVotesCountdown)
                                 timer = 20

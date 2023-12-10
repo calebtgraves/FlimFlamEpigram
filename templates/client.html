@@ -48,7 +48,10 @@
         }
 
         function sendVote(playerChoice){
-            socket.emit('vote',challenge_responses[playerChoice])
+            socket.emit('vote', challenge_responses[playerChoice]);
+            document.getElementById('voting').style.display = 'none';
+            document.getElementById('prompt').innerText = 'Waiting...'
+            document.getElementById('prompt-container').innerText = 'Waiting...'
         }
 
         socket.on('game_started',function(){
@@ -121,7 +124,7 @@
             challenge_responses = []
             console.log(data)
             for(var player in data.responses){
-                challenge_responses.push({'name':player,'prompt':data.prompt,'text':data['responses'][player]})
+                challenge_responses.push({'name':player, 'prompt':data.prompt, 'text':data['responses'][player]})
             }
             document.getElementById('prompt').innerText = `Vote:\n${data.prompt}`;
             document.getElementById('prompt-container').innerText = `Vote:\n${data.prompt}`;

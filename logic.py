@@ -161,6 +161,8 @@ class EpigramGame:
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
             vote = data['name'] # Player name
             print(f'{player_sending_vote["name"]} voted for {vote}')
+            print(f'{self.votes_received}/{len(self.players) - 2} players have submitted votes...')
+
             prompt = data['prompt'] # Prompt being voted on
             player_voted_for = self.find_player('name', vote) # This is the player who got voted for
             player_voted_for_name = player_voted_for['name']
@@ -170,6 +172,13 @@ class EpigramGame:
                 player_voted_for['score'] += 50
             else:
                 player_voted_for['score'] += 25
+
+            # Send updated dictionary to host
+            emit('answers', {'player_voted_for': player_voted_for_name}, room=self.host_sid)
+
+            if self.votes_received == (len(self.players) - 2):
+                emit('players_done', room=self.host_sid)
+                print(f'All {len(self.players)} players have submitted their votes.')
         pass
 
     def send_results_dict(self):
