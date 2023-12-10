@@ -39,6 +39,7 @@ class EpigramGame:
         # Receive requests from host.html
         self.socketio.on_event('client_input_done', self.send_results_dict) # Send updated dictionary of prompts, answers, votes to host.html
         self.socketio.on_event('votes_needed', self.send_clients_challenge) # Host asks for votes from clients
+        self.socketio.on_event('leaderboard_request', self.update_leaderboard) # Host asks for updated leaderboard
         self.socketio.on_event('next_round', self.play_round) # Host signals for a new round
 
     def load_prompts(self, shuffle=True):
@@ -228,12 +229,15 @@ class EpigramGame:
 
         # Extracting just the names in sorted order
         sorted_names = [player['name'] for player in sorted_players]
+        sorted_scores = [player['score'] for player in sorted_players]
 
-        emit('leaderboard', {'leaderboard_list': sorted_names}, room=self.host_sid)
+        combined_dict = {name: score for name, score in zip(sorted_names, sorted_scores)}
+
+        emit('leaderboard', combined_dict, room=self.host_sid)
 
         print('Scores:')
-        for i, name in enumerate(sorted_names):
-            print(f'    {i}. {name}')
+        for i, (name, score) in enumerate(zip(sorted_names, sorted_scores)):
+            print(f'{i}. {name} -- {score}')
         pass
 
     def play_special_round(self): # Seems silly as round_num will always be 3, but this helps with self.prompt_answers

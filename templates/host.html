@@ -36,6 +36,8 @@
                     <div id="response2-author" class="response-author"></div>
                 </div>
             </div>
+            <div id="leaderboard">
+            </div>
         </div>
     </main>
     <!-- Additional elements for hosting the game -->
@@ -113,6 +115,8 @@
         })
 
         socket.on('round',function(data){
+            document.getElementById('player-list').style.display = 'flex';
+            document.getElementById('interactions').style.display = 'none';
             document.getElementById('player-list').style.height = "100%";
             if(data.number == 1){
                 document.getElementById('host-main-logo').style.display = 'none';
@@ -160,6 +164,8 @@
             running = false;
             let i = 0
             function doVoting(){
+                document.getElementById('response1').style.display='flex';
+                document.getElementById('response2').style.display='flex';
                 document.getElementById('response1-votes').innerHTML = '';
                 document.getElementById('response1-votes').style.display='none';
                 document.getElementById('response2-votes').innerHTML = '';
@@ -208,7 +214,7 @@
                                     doVoting()
                                 }
                                 else{
-                                    socket.emit('next_round')
+                                    socket.emit('leaderboard_request')
                                 }
                                 running=false;
                             }
@@ -237,6 +243,16 @@
             }
         })
 
+        socket.on('leaderboard',function(data){
+            document.getElementById('response1').style.display = 'none';
+            document.getElementById('response2').style.display = 'none';
+            for(var name in data){
+                let slot = document.createElement('div')
+                let slotToken = document.createElement('div')
+                slotToken.classList.add(player-token);
+                slotToken.backgroundColor.
+            }
+        })
         // Additional JavaScript for managing game state...
     </script>
 </body>

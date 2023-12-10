@@ -394,7 +394,7 @@ button:active{
     text-align: right;
 }
 .response-container{
-    display:flex;
+    display:none;
     flex-direction: column;
 }
 #response1{
@@ -411,4 +411,7 @@ button:active{
 }
 #response2-votes{
     align-items: flex-start;
+}
+#leaderboard{
+    display:none;
 }
