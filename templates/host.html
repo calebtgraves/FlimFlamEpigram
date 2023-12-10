@@ -260,7 +260,7 @@
                 slotToken.style.backgroundColor = player_colors[name];
                 slotToken.style.color = player_colors[name];
                 let score = document.createElement('p');
-                score.innerText = data[name]
+                score.innerText = data[leaderboard][name]
                 let playerName = document.createElement('h1');
                 playerName.innerText = name;
                 slotToken.appendChild(score);
@@ -285,7 +285,7 @@
             document.getElementById('prompt').innerText = 'WINNER:';
             document.getElementById('prompt-container').innerText = 'WINNER:'
             let num = 0
-            for(var name in winners){
+            for(var name in winner){
                 let slot = document.createElement('div')
                 let slotToken = document.createElement('div')
                 slot.classList.add('leaderboard-slot')
