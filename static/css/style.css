@@ -407,7 +407,8 @@ button:active{
 }
 .response-votes{
     display:none;
-    margin-bottom:-1em;
+    margin: 1rem;
+    margin-bottom:-1rem;
     position:relative;
     z-index:1;
 }

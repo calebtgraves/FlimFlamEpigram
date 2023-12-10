@@ -234,7 +234,10 @@ class EpigramGame:
 
         combined_dict = {name: score for name, score in zip(sorted_names, sorted_scores)}
 
-        emit('leaderboard', combined_dict, room=self.host_sid)
+        winner_score = sorted_scores[0]
+        winner_name = [name for name, score in zip(sorted_names, sorted_scores) if score == winner_score]
+
+        emit('leaderboard', {'leaderboard': combined_dict, 'winner': winner_name, 'score': winner_score}, room=self.host_sid)
 
         print(f'Round {self.round_num} Scores:')
         for i, (name, score) in enumerate(zip(sorted_names, sorted_scores)):

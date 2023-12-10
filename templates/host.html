@@ -242,13 +242,17 @@
                 document.getElementById('response2-votes').appendChild(voteToken)
             }
         })
-
+        let winner = {}
         socket.on('leaderboard',function(data){
             document.getElementById('prompt').innerText = 'LEADERBOARD:';
             document.getElementById('prompt-container').innerText = 'LEADERBOARD:'
             document.getElementById('response1').style.display = 'none';
             document.getElementById('response2').style.display = 'none';
-            for(var name in data){
+            winner = {}
+            for(name in data.winner_name){
+                winner[data.winner_name] = data.winner_score
+            }
+            for(var name in data.leaderboard){
                 let slot = document.createElement('div')
                 let slotToken = document.createElement('div')
                 slot.classList.add('leaderboard-slot')
@@ -269,12 +273,39 @@
             timer_element.style.display='block';
             const leaderboard_timeout = setInterval(()=>{
                 timer -= 1
+                timer_element.innerText = timer
                 if(timer == 0){
                     document.getElementById('leaderboard').innerHTML = '';
                     document.getElementById('leaderboard').style.display = 'none';
                     socket.emit('next_round')
                 }
             },1000)
+        })
+        socket.on('end',function(data){
+            document.getElementById('prompt').innerText = 'WINNER:';
+            document.getElementById('prompt-container').innerText = 'WINNER:'
+            let num = 0
+            for(var name in winners){
+                let slot = document.createElement('div')
+                let slotToken = document.createElement('div')
+                slot.classList.add('leaderboard-slot')
+                slotToken.classList.add('player-token');
+                slotToken.style.backgroundColor = player_colors[name];
+                slotToken.style.color = player_colors[name];
+                let score = document.createElement('p');
+                score.innerText = data[name]
+                let playerName = document.createElement('h1');
+                playerName.innerText = name;
+                slotToken.appendChild(score);
+                slot.appendChild(slotToken);
+                slot.appendChild(playerName);
+                document.getElementById('leaderboard').appendChild(slot)
+                num += 1
+            }
+            if(num > 1){
+                document.getElementById('prompt').innerText = 'WINNERS:';
+                document.getElementById('prompt-container').innerText = 'WINNERS:'
+            }
         })
         // Additional JavaScript for managing game state...
     </script>
