@@ -158,7 +158,7 @@
                 currentPrompts.push(prompt)
             }
             running = false;
-            let i = 1
+            let i = 0
             function doVoting(){
                 document.getElementById('response1-votes').innerHTML = '';
                 document.getElementById('response1-votes').style.display='none';
@@ -201,7 +201,7 @@
                                 clearInterval(showVotesCountdown)
                                 timer = 20
                                 players_done = false
-                                if(i < currentPrompts.length){
+                                if(i < currentPrompts.length-1){
                                     i++
                                     console.log("I'm calling myself now!", i)
                                     doVoting()
