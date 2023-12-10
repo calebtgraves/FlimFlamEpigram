@@ -204,6 +204,7 @@
                                 if(i < currentPrompts.length-1){
                                     i++
                                     console.log("I'm calling myself now!", i)
+                                    socket.emit('reset_votes')
                                     doVoting()
                                 }
                                 else{

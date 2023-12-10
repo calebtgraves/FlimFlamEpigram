@@ -33,6 +33,7 @@ class EpigramGame:
         
         # Receive votes from client.html
         self.socketio.on_event('vote', self.receive_votes) # Get player votes
+        self.socketio.on_event('reset_votes', self.reset_votes) # Reset self.votes_received
         self.socketio.on_event('special_vote', self.special_receive_votes) # Get player special votes
 
         # Receive requests from host.html
@@ -66,8 +67,8 @@ class EpigramGame:
         if self.round_num == 3:
             emit('end', room=self.host_sid)
         # Clear answer/vote count trackers
-        self.answers_received = 0
-        self.votes_received = 0
+        self.answers_received = 0 # Start answers fresh
+        self.votes_received = 0 # Start votes fresh
         # Send round event
         print(f"Round {self.round_num}")
         self.send_to_all('round', {'number': self.round_num})
@@ -95,6 +96,9 @@ class EpigramGame:
                 self.prompt_answers[i+1][prompt_pair[1]] = {}
             self.prompt_answers[i+1][prompt_pair[0]][player] = {'answer': '[NO ANSWER]', 'crutch': False, 'votes': []}
             self.prompt_answers[i+1][prompt_pair[1]][player] = {'answer': '[NO ANSWER]', 'crutch': False, 'votes': []}
+
+    def reset_votes(self):
+        self.votes_received = 0
     
     def get_crutches(self): # This function will be used to generate the crutches that each player will be able to use throughout the game.
         myCrutches = set() # Use a set so that each player will not have any duplicates.
@@ -184,6 +188,7 @@ class EpigramGame:
             if self.votes_received == (len(self.players) - 2):
                 emit('players_done', room=self.host_sid)
                 print(f'All {len(self.players)-2} players have submitted their votes.')
+                self.votes_received = 0
         pass
 
     def send_results_dict(self):
