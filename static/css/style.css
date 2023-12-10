@@ -414,4 +414,7 @@ button:active{
 }
 #leaderboard{
     display:none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

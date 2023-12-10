@@ -244,14 +244,36 @@
         })
 
         socket.on('leaderboard',function(data){
+            document.getElementById('prompt').innerText = 'LEADERBOARD:';
+            document.getElementById('prompt-container').innerText = 'LEADERBOARD:'
             document.getElementById('response1').style.display = 'none';
             document.getElementById('response2').style.display = 'none';
             for(var name in data){
                 let slot = document.createElement('div')
                 let slotToken = document.createElement('div')
                 slotToken.classList.add(player-token);
-                slotToken.backgroundColor.
+                slotToken.style.backgroundColor = player_colors[name];
+                slotToken.style.color = player_colors[name];
+                let score = document.createElement('p');
+                score.innerText = data[name]
+                let playerName = document.createElement('h1');
+                playerName.innerText = name;
+                slotToken.appendChild(score);
+                slot.appendChild(slotToken);
+                slot.appendChild(playerName);
+                document.getElementById('leaderboard').appendChild(slot)
             }
+            document.getElementById('leaderboard').style.display = 'flex';
+            let timer = 20
+            timer_element.style.display='block';
+            const leaderboard_timeout = setInterval(()=>{
+                timer -= 1
+                if(timer == 0){
+                    socket.emit('new_round')
+                    document.getElementById('leaderboard').innerHTML = '';
+                    document.getElementById('leaderboard').style.display = 'none';
+                }
+            },1000)
         })
         // Additional JavaScript for managing game state...
     </script>
