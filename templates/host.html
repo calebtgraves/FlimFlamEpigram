@@ -26,14 +26,14 @@
                 <div id="response1-votes" class="response-votes"></div>
                 <div id="response1-card" class="response-card">
                     <p id="response1-text" class="response-text"></p>
-                    <div id="response1-author" class="response-answer"></div>
+                    <div id="response1-author" class="response-author"></div>
                 </div>
             </div>
             <div id="response2" class="response-container">
                 <div id="response2-votes" class="response-votes"></div>
                 <div id="response2-card" class="response-card">
                     <p id="response2-text" class="response-text"></p>
-                    <div id="response2-author" class="response-answer"></div>
+                    <div id="response2-author" class="response-author"></div>
                 </div>
             </div>
         </div>
@@ -101,9 +101,10 @@
         })
 
         socket.on('all_players',function(data){
-            for(var player in data){
+            console.log(data)
+            data.forEach((player)=>{
                 player_colors[player['name']] = player['color']
-            }
+            })
         })
 
         let players_done
@@ -120,7 +121,6 @@
             Array.from(document.getElementsByClassName('player-token')).forEach((token)=>{
                 token.classList.add('grey-out')
             })
-            console.log(data.number)
             players_done = false
             let timer = 120
             timer_element.style.display = 'block';
@@ -165,8 +165,10 @@
                 document.getElementById('prompt').innerText = currentPrompts[i]
                 document.getElementById('prompt-container').innerText = currentPrompts[i]
                 let theseResponses = []
+                let authors = []
                 for(var playerName in prompt){
                     theseResponses.push(prompt[playerName])
+                    authors.push(playerName)
                 }
                 console.log(theseResponses)
                 document.getElementById('response1-text').innerText = theseResponses[0]['answer']
@@ -178,6 +180,11 @@
                     if(timer == 0 || players_done){
                         clearInterval(countdown)
                         timer = 5
+                        console.log(player_colors)
+                        document.getElementById('response1-author').style.color = player_colors[authors[0]]
+                        document.getElementById('response2-author').style.color = player_colors[authors[1]]
+                        document.getElementById('response1-author').innerText = authors[0]
+                        document.getElementById('response2-author').innerText = authors[1]
                         const showVotesCountdown = setInterval(()=>{
                             timer -= 1;
                             timer_element.innerText = timer

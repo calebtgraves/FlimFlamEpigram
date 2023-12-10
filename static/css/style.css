@@ -356,6 +356,20 @@ button:active{
     text-wrap:balance;
     text-overflow: ellipsis;
     word-wrap: break-word;
+    position:relative;
+}
+.response-author {
+    position: absolute;
+    bottom: 0;
+    font-size: 1.5rem;
+    padding: 1rem;
+}
+#response1-author{
+    left:0;
+}
+#response2-author{
+    right:0;
+    text-align: right;
 }
 .response-container{
     display:flex;
