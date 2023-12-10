@@ -159,22 +159,23 @@ class EpigramGame:
             self.votes_received += 1
             # Conduct voting for each prompt
             player_sending_vote = self.find_player('sid', request.sid) # This is the player who cast the vote
+            submitter_name = player_sending_vote['name']
             vote = data['name'] # Player name
             print(f'{player_sending_vote["name"]} voted for {vote}')
             print(f'{self.votes_received}/{len(self.players) - 2} players have submitted votes...')
 
             prompt = data['prompt'] # Prompt being voted on
             player_voted_for = self.find_player('name', vote) # This is the player who got voted for
-            player_voted_for_name = player_voted_for['name']
+            winner_name = player_voted_for['name']
             
-            self.prompt_answers[self.round_num][prompt][player_voted_for_name]['votes'].append(player_sending_vote) # Show who voted for what
-            if not self.prompt_answers[self.round_num][prompt][player_voted_for_name]['crutch']:
+            self.prompt_answers[self.round_num][prompt][winner_name]['votes'].append(player_sending_vote) # Show who voted for what
+            if not self.prompt_answers[self.round_num][prompt][winner_name]['crutch']:
                 player_voted_for['score'] += 50
             else:
                 player_voted_for['score'] += 25
 
             # Send updated dictionary to host
-            emit('answers', {'player_voted_for': player_voted_for_name}, room=self.host_sid)
+            emit('votes', {'winner': winner_name, 'submitter': submitter_name}, room=self.host_sid)
 
             if self.votes_received == (len(self.players) - 2):
                 emit('players_done', room=self.host_sid)
